@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 // import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -50,14 +55,10 @@ export function RoomDetailDialog({ room, open, onOpenChange, onBookNow }) {
                   </Badge>
                 )}
                 {room.recommended && (
-                  <Badge className="bg-[#8B6F47] text-white">
-                    แนะนำ
-                  </Badge>
+                  <Badge className="bg-[#8B6F47] text-white">แนะนำ</Badge>
                 )}
                 {room.premium && (
-                  <Badge className="bg-[#8B6F47] text-white">
-                    Premium
-                  </Badge>
+                  <Badge className="bg-[#8B6F47] text-white">Premium</Badge>
                 )}
               </div>
             </div>
@@ -105,7 +106,9 @@ export function RoomDetailDialog({ room, open, onOpenChange, onBookNow }) {
             {/* Description */}
             <div className="mb-6">
               <h3 className="text-[#8B6F47] mb-3">รายละเอียด</h3>
-              <p className="text-[#A68A64] leading-relaxed">{room.description}</p>
+              <p className="text-[#A68A64] leading-relaxed">
+                {room.description}
+              </p>
             </div>
 
             {/* Features */}
@@ -127,15 +130,25 @@ export function RoomDetailDialog({ room, open, onOpenChange, onBookNow }) {
             <div className="mb-6">
               <h3 className="text-[#8B6F47] mb-3">อุปกรณ์ในห้อง</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {room.amenities.map((amenity, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center text-center p-4 bg-[#FAF8F5] rounded-lg"
-                  >
-                    <span className="text-2xl mb-2">{amenity.icon}</span>
-                    <span className="text-xs text-[#A68A64]">{amenity.name}</span>
+                {/* Amenities */}
+                <div className="mb-6">
+                  <h3 className="text-[#8B6F47] mb-3">อุปกรณ์ในห้อง</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* map with no picture */}
+                    {(room.amenities || []).map((amenity, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center text-center p-4 bg-[#FAF8F5] rounded-lg"
+                      >
+                        <span className="text-2xl mb-2">{amenity.icon}</span>
+                        <span className="text-xs text-[#A68A64]">
+                          {amenity.name}
+                        </span>
+                      </div>
+                    ))} 
+                    
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
@@ -149,7 +162,10 @@ export function RoomDetailDialog({ room, open, onOpenChange, onBookNow }) {
                     <span className="text-sm text-[#A68A64]">/ วัน</span>
                   </div>
                 </div>
-                <Button className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto" onClick={handleBookNow}>
+                <Button
+                  className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto"
+                  onClick={handleBookNow}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   จองห้องนี้
                 </Button>
@@ -159,7 +175,8 @@ export function RoomDetailDialog({ room, open, onOpenChange, onBookNow }) {
             {/* Additional Info */}
             <div className="mt-6 p-4 bg-[#FAF8F5] rounded-lg">
               <p className="text-sm text-[#A68A64]">
-                💡 <span className="text-[#8B6F47]">หมายเหตุ:</span> ราคาอาจแตกต่างกันในช่วงวันหยุดและเทศกาล 
+                💡 <span className="text-[#8B6F47]">หมายเหตุ:</span>{" "}
+                ราคาอาจแตกต่างกันในช่วงวันหยุดและเทศกาล
                 กรุณาติดต่อสอบถามเพื่อรับข้อมูลและโปรโมชั่นพิเศษ
               </p>
             </div>

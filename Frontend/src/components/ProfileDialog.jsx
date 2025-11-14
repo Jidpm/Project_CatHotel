@@ -1,11 +1,18 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
+import { Edit } from "lucide-react";
 import { Card } from "./ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Mail } from "lucide-react";
+import { Phone } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { Calendar } from "./ui/calendar";
+import { Button } from "./ui/button";
+import { LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Cat } from "lucide-react";
+import { History } from "lucide-react";
 
-import { User, Mail, Phone, MapPin, Calendar, Cat, LogOut, Edit, History } from "lucide-react";
 
-export function ProfileDialog({ open, onOpenChange, userData, onLogout }) {
+export function ProfileDialog({ open, onOpenChange, userData, onLogout, myCats, onEditProfile, onAddCat }) {
   // Mock booking history data
   const bookingHistory = [
     {
@@ -34,31 +41,14 @@ export function ProfileDialog({ open, onOpenChange, userData, onLogout }) {
     },
   ];
 
-  // Mock cat data
-  const myCats = [
-    {
-      id: 1,
-      name: "มิว",
-      breed: "Scottish Fold",
-      age: "2 ปี",
-      color: "ขาวครีม",
-      image: "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400",
-    },
-    {
-      id: 2,
-      name: "ลูกโป่ง",
-      breed: "British Shorthair",
-      age: "3 ปี",
-      color: "เทา",
-      image: "https://images.unsplash.com/photo-1571988840298-3b5301d5109b?w=400",
-    },
-  ];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="text-[#8B6F47]">โปรไฟล์ของฉัน</DialogTitle>
+          <DialogDescription className="text-[#A68A64]">
+            ข้อมูลส่วนตัว ข้อมูลแมว และประวัติการจอง
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -83,7 +73,7 @@ export function ProfileDialog({ open, onOpenChange, userData, onLogout }) {
               </div>
 
               <div className="flex-1">
-                <h3 className="text-[#8B6F47] mb-4">{userData?.name || "สมชาย ใจดี"}</h3>
+                <h3 className="text-[#8B6F47] mb-4">{userData?.name}</h3>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 text-[#A68A64]">
@@ -108,6 +98,7 @@ export function ProfileDialog({ open, onOpenChange, userData, onLogout }) {
                   <Button
                     variant="outline"
                     className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
+                    onClick={onEditProfile}
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     แก้ไขโปรไฟล์
@@ -151,6 +142,7 @@ export function ProfileDialog({ open, onOpenChange, userData, onLogout }) {
                 <Button
                   variant="outline"
                   className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
+                  onClick={onAddCat}
                 >
                   + เพิ่มข้อมูลแมว
                 </Button>

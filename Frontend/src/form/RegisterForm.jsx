@@ -17,20 +17,24 @@ export function RegisterForm(){
   });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    //try,catch
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      alert("รหัสผ่านไม่ตรงกัน กรุณาลองใหม่อีกครั้ง");
-      return;
-    }
-    console.log('formData', formData)
-    // Handle registration logic here
+  e.preventDefault();
+
+  // ตรวจว่ารหัสผ่านตรงกันไหม
+  if (formData.password !== formData.confirmPassword) {
+    alert("รหัสผ่านไม่ตรงกัน กรุณาลองใหม่อีกครั้ง");
+    return;
+  }
+  try {
     console.log("Register:", formData);
-    await registerUser(formData);
-    alert("สมัครสมาชิกสำเร็จ!");
+    const res = await registerUser(formData);
+    alert(res.message || "สมัครสมาชิกสำเร็จ!");
     // onOpenChange(false);
-  };
+  } catch (error) {
+    //ดัก error จาก backend
+    console.error("Registration failed", error);
+    alert(error.message || "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่");
+  }
+};
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -132,6 +136,22 @@ export function RegisterForm(){
               className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
               required
               minLength={6}
+            />
+          </div>
+
+          {/* Address */}
+           <div className="space-y-2">
+            <Label htmlFor="address" className="text-[#8B6F47]">
+              ที่อยู่ <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="address"
+              type="text"
+              placeholder="your address"
+              value={formData.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
+              required
             />
           </div>
 

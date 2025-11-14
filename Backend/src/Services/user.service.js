@@ -1,10 +1,14 @@
 import prisma from "../Config/prisma.config.js";
 
-export const getUserBy = async (email) => {
-  return await prisma.user.findUnique({ where: { email} });
+export const getUserBy = async (field, value) => {
+  return await prisma.user.findUnique({
+    where: {
+      [field]: field === "id" ? Number(value) : value
+    }
+  });
 };
+
 export const createUser = async (userData) => {
-  console.log('userData', userData)
   return await prisma.user.create({
     data: { 
       email : userData.email,

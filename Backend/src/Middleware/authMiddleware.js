@@ -16,6 +16,7 @@ export const authMiddleware = async(req, res, next) => {
 	console.log(payload)
 
     const foundUser = await getUserBy('id', payload.id)
+    console.log('foundUser', foundUser)
 	if(!foundUser) {
 		throw createHttpError[401]('Unauthorized 3')
 	}
