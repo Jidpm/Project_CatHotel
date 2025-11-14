@@ -13,13 +13,8 @@ export function RegisterDialog({ open, onOpenChange, onSwitchToLogin }) {
   
   const handleSwitchToLogin = (e) => {
     e?.preventDefault();
-    console.log("🔄 RegisterDialog: handleSwitchToLogin called");
-    console.log("🔄 RegisterDialog: onSwitchToLogin exists?", !!onSwitchToLogin);
     if (onSwitchToLogin) {
-      console.log("🔄 RegisterDialog: Calling onSwitchToLogin...");
       onSwitchToLogin();
-    } else {
-      console.error("❌ RegisterDialog: onSwitchToLogin is undefined!");
     }
   };
   return (

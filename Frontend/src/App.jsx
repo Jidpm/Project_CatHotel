@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Outlet } from "react-router";
 import { Button } from "./components/ui/button";
+import { useAuthStore } from "./store/useAuthStore";
 import { Card } from "./components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { Cat } from "lucide-react";
@@ -25,50 +26,28 @@ export default function App() {
 
   const navigate = useNavigate();
 
+  // Use Zustand store for auth state
+  const { userData, isLoggedIn, myCats, setUserData, setIsLoggedIn, setMyCats, logout: storeLogout } = useAuthStore();
+
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [roomDetailOpen, setRoomDetailOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [bookingOpen, setBookingOpen] = useState(false);
-  // const [profileOpen, setProfileOpen] = useState(false);
-  // const [editProfileOpen, setEditProfileOpen] = useState(false);
-  // const [addCatOpen, setAddCatOpen] = useState(false);
-
-  // const [pendingBookingData, setPendingBookingData] = useState(null);
-
-  // Login state
-  const [userData, setUserData] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Handler Login Success ใช้ useCallback เพื่อความเร็ว ไม่สร้างฟังก์ชันใหม่ทุกครั้ง
   const handleLoginSuccess = useCallback((userData) => {
     setUserData(userData);
     setIsLoggedIn(true);
     setLoginOpen(false);
-    // setProfileOpen(true);
-  }, []);
-  console.log("🔄 App Rendered | isLoggedIn =", isLoggedIn);
+  }, [setUserData, setIsLoggedIn]);
 
   // Handle logout
   const handleLogout = useCallback(() => {
-    setIsLoggedIn(false);
-    setUserData(null);
+    storeLogout();
     localStorage.removeItem("token");
     navigate("/");
-  }, [navigate]);
-  // const handleLogout = useCallback(() => {
-  //   setIsLoggedIn(false);
-  //   setUserData(null);
-  //   setProfileOpen(false);
-  //   // Scroll to top
-  //   window.scrollTo({ top: 0, behavior: "smooth" });
-  // }, []);
-
-  // Handle edit profile
-  // const handleEditProfile = useCallback(() => {
-  //   setProfileOpen(false);
-  //   setEditProfileOpen(true);
-  // }, []);
+  }, [navigate, storeLogout]);
 
   const handleSwitchToRegister = useCallback(() => {
     setLoginOpen(false);
@@ -79,16 +58,6 @@ export default function App() {
     setRegisterOpen(false);
     setLoginOpen(true);
   }, []);
-
-  // Handle add cat
-  const handleAddCat = useCallback(() => {
-    setProfileOpen(false);
-    setAddCatOpen(true);
-  }, []);
-  // // Handle save cat
-  // const handleSaveCat = useCallback((newCat) => {
-  //   setMyCats(prev => [...prev, newCat]);
-  // }, []);
 
   //Handle BookThisroom
   const handleBookThisRoom = (room) => {
@@ -108,27 +77,31 @@ export default function App() {
     setRoomDetailOpen(true);
   };
 
-  // Cat data state
-  const [myCats, setMyCats] = useState([
-    {
-      id: 1,
-      name: "มิว",
-      breed: "Scottish Fold",
-      age: "2 ปี",
-      color: "ขาวครีม",
-      image:
-        "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400",
-    },
-    {
-      id: 2,
-      name: "ลูกโป่ง",
-      breed: "British Shorthair",
-      age: "3 ปี",
-      color: "เทา",
-      image:
-        "https://images.unsplash.com/photo-1571988840298-3b5301d5109b?w=400",
-    },
-  ]);
+  // Initialize mock cat data if empty
+  useEffect(() => {
+    if (myCats.length === 0 && isLoggedIn) {
+      setMyCats([
+        {
+          id: 1,
+          name: "มิว",
+          breed: "Scottish Fold",
+          age: "2 ปี",
+          color: "ขาวครีม",
+          image:
+            "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400",
+        },
+        {
+          id: 2,
+          name: "ลูกโป่ง",
+          breed: "British Shorthair",
+          age: "3 ปี",
+          color: "เทา",
+          image:
+            "https://images.unsplash.com/photo-1571988840298-3b5301d5109b?w=400",
+        },
+      ]);
+    }
+  }, [isLoggedIn, myCats.length, setMyCats]);
 
 
   const roomsData = [
@@ -758,20 +731,9 @@ export default function App() {
         userData={userData}
       />
       
-      {/* <ProfilePage
-      userData={userData}
-      myCats={myCats}
-      onLogout={handleLogout}
-      /> */}
-      {/* <ProfileDialog
-        open={profileOpen}
-        onOpenChange={setProfileOpen}
-        userData={userData}
-        onLogout={handleLogout}
-        myCats={myCats}
-        // onEditProfile={handleEditProfile}
-        onAddCat={handleAddCat}
-      /> */}
+
+      {/* Render child routes */}
+      <Outlet context={{ userData, myCats, onLogout: handleLogout }} />
     </div>
   );
 }

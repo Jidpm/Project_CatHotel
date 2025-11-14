@@ -96,7 +96,6 @@ export function BookingDialog({ room, open, onOpenChange }) {
       specialNotes,
     };
 
-    console.log("Booking data:", bookingData);
     alert(`✅ จองห้องพักสำเร็จ!\n\nห้อง: ${room.name}\nระยะเวลา: ${calculateNights()} คืน\nราคารวม: ฿${calculateTotal().toLocaleString()}\n\nเราจะติดต่อกลับเพื่อยืนยันการจองภายใน 24 ชั่วโมง`);
     onOpenChange(false);
   };

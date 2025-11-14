@@ -2,38 +2,38 @@ import { createCatInfo, getCatInfo, getRoomDetail } from "../Services/info.servi
 import { addCatInfoSchema } from "../Validations/schema.js"
 
 
-export const addCatInfo = async(req, res)=>{
-    //validation
-    const catDetailInfo = addCatInfoSchema.parse(req.body)
+export const addCatInfo = async(req, res, next)=>{
+    try {
+        //validation
+        const catDetailInfo = addCatInfoSchema.parse(req.body)
 
-    const newCatInfo = {...catDetailInfo }
-    const result = await createCatInfo(newCatInfo)
-    res.json({
-        message: "Add info successful",
-        result: result
-    })
+        const newCatInfo = {...catDetailInfo }
+        const result = await createCatInfo(newCatInfo)
+        res.json({
+            message: "Add info successful",
+            result: result
+        })
+    } catch (error) {
+        next(error)
+    }
 }
 
-export const catInfo = async(req, res)=>{
-    const catName = req.body.catName
-    const catDetail = await getCatInfo(catName)
-    res.json({catDetail})
+export const catInfo = async(req, res, next)=>{
+    try {
+        const catName = req.body.catName
+        const catDetail = await getCatInfo(catName)
+        res.json({catDetail})
+    } catch (error) {
+        next(error)
+    }
 }
 
-export const addRoomtype = async(req, res)=>{
-    const roomTypeData = req.body
-    const newRoomType = {...roomTypeData}
-    const result = await createRoomType(newRoomType)
-    res.json({
-        message: "add room type successful",
-        result: result
-    })
-}
-
-export const roomType = async(req, res)=>{
-    const roomId = req.params.id
-    // console.log('req', roomId)
-    const roomDetail = await getRoomDetail(roomId)
-    console.log('roomDetail', roomDetail)
-    res.json({roomDetail})
+export const roomType = async(req, res, next)=>{
+    try {
+        const roomId = req.params.id
+        const roomDetail = await getRoomDetail(roomId)
+        res.json({roomDetail})
+    } catch (error) {
+        next(error)
+    }
 }

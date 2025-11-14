@@ -3,28 +3,30 @@ import bcrypt from "bcryptjs";
 import { loginSchema, registerSchema } from "../Validations/schema.js";
 import { createUser, getMe, getUserBy } from "../Services/user.service.js";
 import jwt from "jsonwebtoken";
-import { success } from "zod";
 
 export const register = async (req, res, next) => {
-  const { phoneNumber, email, firstName, lastName, password, confirmPassword } =
-    req.body;
+  try {
+    const { phoneNumber, email, firstName, lastName, password, confirmPassword } =
+      req.body;
 
-  //validation
-  const user = registerSchema.parse(req.body);
+    //validation
+    const user = registerSchema.parse(req.body);
 
-  //Check User are already registered
-  const haveUser = await getUserBy("email", user.email);
-  if (haveUser) {
-    return next(createHttpError[409]("This user already register")); //!!
+    //Check User are already registered
+    const haveUser = await getUserBy("email", user.email);
+    if (haveUser) {
+      return next(createHttpError(409, "This user already register"));
+    }
+    const newUser = { ...user, password: await bcrypt.hash(password, 10) };
+    const result = await createUser(newUser);
+
+    res.json({
+      message: "Register Successful",
+      result: result,
+    });
+  } catch (error) {
+    next(error);
   }
-  const newUser = { ...user, password: await bcrypt.hash(password, 10) };
-  const result = await createUser(newUser);
-  console.log("result", result);
-
-  res.json({
-    message: "Register Successful",
-    result: result,
-  });
 };
 
 export const login = async (req, res, next) => {
@@ -35,7 +37,7 @@ export const login = async (req, res, next) => {
     const foundUser = await getUserBy("email", email);
     //not found user
     if (!foundUser) {
-      return next(createHttpError[400]("Login fail!!, Not Found User."));
+      return next(createHttpError(400, "Login fail!!, Not Found User."));
     }
     const isMatch = await bcrypt.compare(password, foundUser.password);
     if (!isMatch) {
@@ -56,8 +58,12 @@ export const login = async (req, res, next) => {
   }
 };
 
-export const profileUser = async (req, res) => {
-  const userId = req.user.id;
-  const user = await getMe(userId);
-  res.json({ id: user.id, email: user.email, role: user.role });
+export const profileUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await getMe(userId);
+    res.json({ id: user.id, email: user.email, role: user.role });
+  } catch (error) {
+    next(error);
+  }
 };

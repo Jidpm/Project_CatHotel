@@ -2,8 +2,18 @@ import { Cat } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { User } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
+import { useNavigate } from "react-router";
 
-export default function ProfilePage({ userData, myCats, onLogout }) {
+export default function ProfilePage() {
+  const { userData, myCats, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem("token");
+    navigate("/");
+  };
   if (!userData) {
     return (
       <div className="text-center mt-20 text-[#8B6F47]">
@@ -30,7 +40,7 @@ export default function ProfilePage({ userData, myCats, onLogout }) {
         </div>
 
         <Button
-          onClick={onLogout}
+          onClick={handleLogout}
           className="mt-4 bg-[#8B6F47] hover:bg-[#6F5638] text-white"
         >
           ออกจากระบบ

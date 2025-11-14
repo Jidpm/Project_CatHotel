@@ -13,16 +13,12 @@ export const authMiddleware = async(req, res, next) => {
 		throw createHttpError[401]('Token not found')
 	}
     const payload = jwt.verify(token, process.env.JWT_SECRET)
-	console.log(payload)
 
     const foundUser = await getUserBy('id', payload.id)
-    console.log('foundUser', foundUser)
 	if(!foundUser) {
-		throw createHttpError[401]('Unauthorized 3')
+		throw createHttpError[401]('User not found')
 	}
 	const {password, createdAt, updatedAt, ...userData} = foundUser
 	req.user = userData
-    console.log('userData', userData)
-    console.log('req.user', req.user)
 	next()
 }
