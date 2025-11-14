@@ -1,15 +1,15 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "../App";
-// import HomePage from "../pages/";
+import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
 
 const userRouter = createBrowserRouter([
   {
-    path: "/",
-    element: <App />, // ใช้ App เป็น Layout หลัก
+    // path: "/",
+    // element: <App />, // ใช้ App เป็น Layout หลัก
     children: [
-      // { path: "", element: <HomePage /> },
-      { path: "profile", element: <ProfilePage /> },
+      { path: "/", element: <HomePage /> },
+      { path: "/profile", element: <ProfilePage /> },
     ],
   },
 ]);
