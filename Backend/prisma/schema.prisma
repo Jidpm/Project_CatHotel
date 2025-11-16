@@ -17,7 +17,7 @@ model User {
   id          Int       @id @default(autoincrement())
   firstName   String
   lastName    String
-  email       String   @unique
+  email       String    @unique
   phoneNumber String?   @unique
   password    String
   address     String
@@ -59,7 +59,9 @@ enum RoomStatus {
 model Roomtype {
   id           Int           @id @default(autoincrement())
   roomType     String
+  slug         String        @unique
   roomPerNight Float
+  description  String?       @db.Text
   roomStatus   RoomStatus    @default(AVAILABLE)
   booking      BookingRoom[]
 }
@@ -84,8 +86,8 @@ model BookingRoom {
 }
 
 model Settings {
-  id                Int      @id @default(autoincrement())
-  keyName           String   @unique 
-  keyValue          String   
-  description       String?
+  id          Int     @id @default(autoincrement())
+  keyName     String  @unique
+  keyValue    String
+  description String?
 }

@@ -21,7 +21,7 @@ export const getMe = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("Get Me Failed:", error);
+    console.error("Get Profile Failed:", error);
     return { success: false, message: "Unauthorized" };
   }
 };

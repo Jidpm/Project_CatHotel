@@ -1,43 +1,48 @@
 import { useCallback, useEffect } from "react";
-import { useNavigate, Outlet } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuthStore } from "./store/useAuthStore";
 import { getMe } from "./api/auth";
 
 export default function App() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Use Zustand store for auth state
   const {
-    userData,
-    myCats,
     setUserData,
     setIsLoggedIn,
-    logout: storeLogout,
+    logout,
   } = useAuthStore();
-
-  // Handle logout
-  const handleLogout = useCallback(() => {
-    storeLogout();
-    localStorage.removeItem("token");
-    navigate("/");
-  }, [navigate, storeLogout]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     async function fetchUser() {
-      const res = await getMe();
+      const res = await getMe() // ส่ง token ไปหารายละเอียด user
+
       if (res.success) {
         setUserData(res.user);
         setIsLoggedIn(true);
       } else {
-        localStorage.removeItem("token");
+        localStorage.removeItem("token")// token หมดอายุ
       }
     }
 
     fetchUser();
   }, []);
 
-  return <Outlet context={{ userData, myCats, onLogout: handleLogout }} />;
+  // Handle logout
+  // const handleLogout = useCallback(() => {
+  //   logout();
+  //   localStorage.removeItem("token");
+  //   navigate("/");
+  // }, [navigate, logout]);
+
+  return null
+
+
+  // return <Outlet context={{ userData, myCats, onLogout: handleLogout }} />;
 }
+
+
+

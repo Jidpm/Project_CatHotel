@@ -2,14 +2,21 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "../App";
 import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
+import MainLayout from "../components/layouts/MainLayout";
+import Contact from "../pages/Contact";
+import RoomsDetailPage from "../pages/RoomsDetailPage";
+
+
 
 const userRouter = createBrowserRouter([
   {
-    // path: "/",
-    // element: <App />, // ใช้ App เป็น Layout หลัก
+    path: "/",
+    element: <MainLayout />, 
     children: [
-      { path: "/", element: <HomePage /> },
+      { index: true, element: <HomePage /> },
       { path: "/profile", element: <ProfilePage /> },
+      { path: "/roomtype/:slug", element: <RoomsDetailPage/>},
+      { path: "/contact", element: <Contact/>}
     ],
   },
 ]);

@@ -4,7 +4,6 @@ import { Card } from "../components/ui/card";
 import { User } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router";
-import Layout from "../components/Layout";
 
 export default function ProfilePage() {
   const { userData, myCats, logout } = useAuthStore();
@@ -17,16 +16,15 @@ export default function ProfilePage() {
   };
   if (!userData) {
     return (
-      <Layout>
+      
         <div className="text-center mt-20 text-[#8B6F47]">
           <p>กรุณาเข้าสู่ระบบก่อน</p>
         </div>
-      </Layout>
     );
   }
 
   return (
-    <Layout>
+    <>
       <div className="max-w-3xl mx-auto p-6 mt-10">
         <h1 className="text-[#8B6F47] text-3xl mb-6 flex items-center gap-2">
           <User className="w-7 h-7" />
@@ -75,6 +73,6 @@ export default function ProfilePage() {
           ))}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

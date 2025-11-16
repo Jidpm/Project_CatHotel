@@ -18,68 +18,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import Layout from "../components/Layout";
+
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { RoomDetailDialog } from "../components/RoomDetailDialog";
 import { BookingDialog } from "../components/BookingDialog";
+import { useNavigate } from "react-router";
 
-const roomsData = [
-  {
-    id: "standard",
-    name: "ห้องสแตนดาร์ด",
-    nameEn: "Standard Room",
-    price: 350,
-    size: "2x3 เมตร",
-    capacity: "เหมาะสำหรับแมว 1 ตัว",
-    description: "ห้องพักขนาดกะทัดรัด เหมาะสำหรับแมว 1 ตัว พร้อมอุปกรณ์ครบครัน",
-    images: [
-      "https://images.unsplash.com/photo-1690335466277-7968a05daa74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjByZWxheGluZ3xlbnwxfHx8fDE3NjI0NDU3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    ],
-    features: [
-      "กระบะทราย Premium",
-      "ต้นไม้แมวขนาดกลาง",
-      "กล้องวงจรปิด CCTV",
-      "ระบบปรับอากาศอัตโนมัติ",
-    ],
-  },
-  {
-    id: "deluxe",
-    name: "ห้องดีลักซ์",
-    nameEn: "Deluxe Room",
-    price: 650,
-    size: "3x4 เมตร",
-    capacity: "เหมาะสำหรับแมว 1-2 ตัว",
-    description: "ห้องพักขนาดกลาง พื้นที่กว้างขวาง พร้อมของเล่นหลากหลาย",
-    images: [
-      "https://images.unsplash.com/photo-1638826595775-e2eae86cda8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjBwbGF5aW5nfGVufDF8fHx8MTc2MjQxNjU5OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    ],
-    features: [
-      "ทุกอย่างในห้องสแตนดาร์ด",
-      "ต้นไม้แมวขนาดใหญ่ 2 ต้น",
-      "พื้นที่เล่นส่วนตัว",
-      "หน้าต่างวิวสวน",
-    ],
-  },
-  {
-    id: "suite",
-    name: "ห้องสวีท",
-    nameEn: "Suite Room",
-    price: 950,
-    size: "4x5 เมตร",
-    capacity: "เหมาะสำหรับแมว 2-3 ตัว",
-    description: "ห้องพักระดับพรีเมียม พร้อมบริการ VIP",
-    images: [
-      "https://images.unsplash.com/photo-1579101324336-b71150dc9378?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBpbnRlcmlvciUyMGJlaWdlfGVufDF8fHx8MTc2MjQ4NDAwMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    ],
-    features: [
-      "ทุกอย่างในห้องดีลักซ์",
-      "ห้องนอนแยก + ห้องเล่นแยก",
-      "บริการ VIP",
-      "ระเบียงส่วนตัว",
-    ],
-  },
-];
 
 const HomePage = () => {
   // Use Zustand store for auth state
@@ -88,6 +32,7 @@ const HomePage = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [roomDetailOpen, setRoomDetailOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const navigate = useNavigate()
 
   const handleRoomClick = (room) => {
     setSelectedRoom(room);
@@ -107,8 +52,9 @@ const HomePage = () => {
     setBookingOpen(true);
   };
 
+
   return (
-    <Layout>
+    <>
       {/* Hero Section - Full Width Image with Overlay */}
       <section
         id="home"
@@ -186,7 +132,7 @@ const HomePage = () => {
       </section>
 
       {/* Rooms with Tabs */}
-      <section id="rooms" className="py-20 bg-white">
+      <section id="ourrooms" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -275,19 +221,15 @@ const HomePage = () => {
                         <span className="text-[#8B6F47]">฿350</span>
                         <span className="text-[#A68A64]"> / วัน</span>
                       </div>
+                     
                       <Button
                         variant="outline"
                         className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7] cursor-pointer"
-                        onClick={() => handleRoomClick(roomsData[0])}
+                        onClick={()=> navigate("/roomtype/standard-room")}
                       >
                         More Detail
                       </Button>
-                      <Button
-                        className="bg-[#8B6F47] hover:bg-[#6F5638] text-white cursor-pointer"
-                        onClick={() => handleBookThisRoom(roomsData[0])}
-                      >
-                        Book This Room
-                      </Button>
+                     
                     </div>
                   </div>
                 </div>
@@ -353,16 +295,11 @@ const HomePage = () => {
                       <Button
                         variant="outline"
                         className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7] cursor-pointer"
-                        onClick={() => handleRoomClick(roomsData[1])}
+                        onClick={() => navigate("/roomtype/deluxe-room")}
                       >
                         More Detail
                       </Button>
-                      <Button
-                        className="bg-[#8B6F47] hover:bg-[#6F5638] text-white"
-                        onClick={() => handleBookThisRoom(roomsData[1])}
-                      >
-                        Book This Room
-                      </Button>
+                   
                     </div>
                   </div>
                 </div>
@@ -428,16 +365,11 @@ const HomePage = () => {
                       <Button
                         variant="outline"
                         className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7] cursor-pointer"
-                        onClick={() => handleRoomClick(roomsData[2])}
+                        onClick={() => navigate("/roomtype/suite-room")}
                       >
                         More Detail
                       </Button>
-                      <Button
-                        className="bg-[#8B6F47] hover:bg-[#6F5638] text-white"
-                        onClick={() => handleBookThisRoom(roomsData[2])}
-                      >
-                        Book This Room
-                      </Button>
+                  
                     </div>
                   </div>
                 </div>
@@ -543,13 +475,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      <RoomDetailDialog
-        open={roomDetailOpen}
-        onOpenChange={setRoomDetailOpen}
-        room={selectedRoom}
-        onBookNow={handleBookThisRoom}
-      />
-
       <BookingDialog
         open={bookingOpen}
         onOpenChange={setBookingOpen}
@@ -557,7 +482,7 @@ const HomePage = () => {
         myCats={myCats}
         userData={userData}
       />
-    </Layout>
+    </>
   );
 };
 

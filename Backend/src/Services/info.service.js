@@ -1,6 +1,17 @@
 import prisma from "../Config/prisma.config.js"
-import { roomType } from "../Controllers/info.controller.js"
 
+
+export const getRoomDetail = async(slug)=>{
+
+    const roomDetail = await prisma.roomtype.findUnique({
+        where:{ slug },
+        // include:{
+        //     image: true,
+        //     amenities: true
+        // }
+    })
+    return roomDetail
+} 
 
 export async function getCatInfo(catName) {
     const catInfo = await prisma.catInfo.findMany({
@@ -14,13 +25,3 @@ export const createCatInfo = async (catInfoData)=>{
         data: catInfoData
     })
 }
-
-export const getRoomDetail = async(roomTypeId)=>{
-    const id = Number(roomTypeId)  //แปลงเป็น number
-    const roomDetail = await prisma.roomtype.findUnique({
-        where:{
-            id
-        }
-    })
-    return roomDetail
-} 

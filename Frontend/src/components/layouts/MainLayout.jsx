@@ -1,44 +1,19 @@
-import { useAuthStore } from "../store/useAuthStore";
-import { useNavigate } from "react-router";
-import { useState, useCallback, useEffect } from "react";
-import { LoginDialog } from "../components/LoginDialog";
-import { RegisterDialog } from "../components/RegisterDialog";
+import { useAuthStore } from "../../store/useAuthStore";
+import { Link, Outlet, useNavigate } from "react-router";
+import { useState, useCallback } from "react";
+import { LoginDialog } from "../LoginDialog";
+import { RegisterDialog } from "../RegisterDialog";
 import { Cat, User } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
-const Layout = ({ children }) => {
-  const { myCats, setUserData, setIsLoggedIn, isLoggedIn, setMyCats } =
+const MainLayout = () => {
+  const { userData, myCats, setUserData, setIsLoggedIn, isLoggedIn, logout } =
     useAuthStore();
+
   const navigate = useNavigate();
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
-
-  // Initialize mock cat data if empty
-  useEffect(() => {
-    if (myCats.length === 0 && isLoggedIn) {
-      setMyCats([
-        {
-          id: 1,
-          name: "มิว",
-          breed: "Scottish Fold",
-          age: "2 ปี",
-          color: "ขาวครีม",
-          image:
-            "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400",
-        },
-        {
-          id: 2,
-          name: "ลูกโป่ง",
-          breed: "British Shorthair",
-          age: "3 ปี",
-          color: "เทา",
-          image:
-            "https://images.unsplash.com/photo-1571988840298-3b5301d5109b?w=400",
-        },
-      ]);
-    }
-  }, [isLoggedIn, myCats.length, setMyCats]);
 
   // Handler Login Success ใช้ useCallback เพื่อความเร็ว ไม่สร้างฟังก์ชันใหม่ทุกครั้ง
   const handleLoginSuccess = useCallback(
@@ -50,19 +25,19 @@ const Layout = ({ children }) => {
     [setUserData, setIsLoggedIn]
   );
 
-  const handleSwitchToRegister = useCallback(() => {
+  const handleSwitchToRegister = () => {
     setLoginOpen(false);
     setRegisterOpen(true);
-  }, []);
+  };
 
-  const handleSwitchToLogin = useCallback(() => {
+  const handleSwitchToLogin = () => {
     setRegisterOpen(false);
     setLoginOpen(true);
-  }, []);
+  };
 
   return (
     <div>
-      {/* Minimal Header */}
+      {/* Header */}
       <header className="border-b border-[#E8DCC8] bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
@@ -70,34 +45,29 @@ const Layout = ({ children }) => {
               <div className="w-10 h-10 bg-gradient-to-br from-[#8B6F47] to-[#6F5638] rounded-lg flex items-center justify-center">
                 <Cat className="w-6 h-6 text-white" />
               </div>
-              <span className="text-[#8B6F47]">Everyday</span>
+              <span className="text-[#8B6F47]">Kuma Cat Hotel</span>
             </div>
 
             <nav className="hidden md:flex items-center gap-8">
-              <a
-                href="home"
+              <Link
+                to="/"
                 className="text-sm text-[#8B6F47] hover:text-[#6F5638]"
               >
                 Home
-              </a>
-              <a
-                href="rooms"
-                className="text-sm text-[#8B6F47] hover:text-[#6F5638]"
-              >
-                Rooms
-              </a>
-              <a
-                href="about"
+              </Link>
+              <Link to="/roomtype/standard-room" className="text-sm text-[#8B6F47] hover:text-[#6F5638]">Rooms</Link>
+              {/* จะให้สกอลงมาหน้าrooms */}
+              {/* <Link to="about"
                 className="text-sm text-[#8B6F47] hover:text-[#6F5638]"
               >
                 About
-              </a>
-              <a
-                href="contact"
+              </Link> */}
+              <Link
+                to="/contact"
                 className="text-sm text-[#8B6F47] hover:text-[#6F5638]"
               >
                 Contact
-              </a>
+              </Link>
             </nav>
 
             {isLoggedIn ? (
@@ -121,8 +91,16 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </header>
-      {children}
-      {/* Footer - Minimal */}
+
+      <Outlet
+        context={{
+          userData,
+          myCats,
+          onLogout: logout,
+        }}
+      />
+
+      {/* Footer */}
       <footer className="bg-[#FAF8F5] border-t border-[#E8DCC8] py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -134,18 +112,18 @@ const Layout = ({ children }) => {
             </div>
 
             <div className="flex gap-8 text-sm text-[#A68A64]">
-              <a href="#home" className="hover:text-[#8B6F47]">
+              <Link to="/" className="hover:text-[#8B6F47]">
                 Home
-              </a>
-              <a href="#rooms" className="hover:text-[#8B6F47]">
+              </Link>
+              <Link to="/rooms" className="hover:text-[#8B6F47]">
                 Rooms
-              </a>
-              <a href="#about" className="hover:text-[#8B6F47]">
+              </Link>
+              {/* <a href="#about" className="hover:text-[#8B6F47]">
                 About
-              </a>
-              <a href="#contact" className="hover:text-[#8B6F47]">
+              </a> */}
+              <Link to="/contact" className="hover:text-[#8B6F47]">
                 Contact
-              </a>
+              </Link>
             </div>
 
             <p className="text-sm text-[#A68A64]">© 2025 Kuma Cat Hotel</p>
@@ -168,4 +146,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
+export default MainLayout;
