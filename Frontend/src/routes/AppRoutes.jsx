@@ -3,8 +3,8 @@ import App from "../App";
 import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
 import MainLayout from "../components/layouts/MainLayout";
-import Contact from "../pages/Contact";
 import RoomsDetailPage from "../pages/RoomsDetailPage";
+import ContactPage from "../pages/ContactPage";
 
 
 
@@ -16,7 +16,7 @@ const userRouter = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "/profile", element: <ProfilePage /> },
       { path: "/roomtype/:slug", element: <RoomsDetailPage/>},
-      { path: "/contact", element: <Contact/>}
+      { path: "/contact", element: <ContactPage/>}
     ],
   },
 ]);

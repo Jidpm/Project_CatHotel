@@ -32,6 +32,7 @@ model CatInfo {
   age              String
   breed            String
   healthInfo       String
+  description  String?       @db.Text
   User             User?              @relation(fields: [userId], references: [id])
   userId           Int?
   catDetailBooking CatDetailBooking[]

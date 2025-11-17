@@ -115,7 +115,7 @@ const MainLayout = () => {
               <Link to="/" className="hover:text-[#8B6F47]">
                 Home
               </Link>
-              <Link to="/rooms" className="hover:text-[#8B6F47]">
+              <Link to="/roomtype/standard-room" className="hover:text-[#8B6F47]">
                 Rooms
               </Link>
               {/* <a href="#about" className="hover:text-[#8B6F47]">

@@ -3,40 +3,71 @@ import { useState, useEffect } from "react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Check, Calendar, Users, Maximize2 } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export default function RoomDetailPage() {
   const { slug } = useParams();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [allRooms, setAllRooms] = useState([]); //set useState for info button Next room
   // const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const navigate = useNavigate()
 
-  
+  // ดึงห้องปัจจุบัน
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const res = await fetch(`http://localhost:8900/api/info/roomtype/${slug}`);
+        const res = await fetch(
+          `http://localhost:8900/api/info/roomtype/${slug}`
+        );
         const data = await res.json();
+        setRoom(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-        if (res.ok) {
-          setRoom(data);
-        } else {
-          setRoom(null);
-        }
+    fetchRoom();
+  }, [slug]);
+
+  // ดึงทุกห้องเพื่อใช้ button next room
+  useEffect(() => {
+    const fetchAllRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:8900/api/info/roomtype");
+        const data = await res.json();
+        setAllRooms(data.roomType); // backend ต้องส่ง { roomTypes: [...] }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchRoom();
-  }, [slug]);
+
+    fetchAllRooms();
+   
+  }, []);
+
+  // ปุ่ม: ดูห้องถัดไป
+  const goToNextRoom = () => {
+    if (!allRooms || !allRooms.length === 0){
+      return;
+
+    }
+    const currentIndex = allRooms.findIndex((room) => room.slug === slug);
+    const nextIndex = (currentIndex + 1) % allRooms.length
+
+    const nextSlug = allRooms[nextIndex];
+
+    navigate(`/roomtype/${nextSlug.slug}`);
+  };
+ 
 
   if (loading) return <p className="p-10">กำลังโหลดข้อมูล...</p>;
   if (!room) return <p className="p-10">ไม่พบข้อมูลห้องพัก</p>;
 
   return (
     <div className="max-w-5xl mx-auto w-[95vw] mt-10 mb-20 bg-white rounded-xl shadow-md overflow-hidden">
-
       {/* Image Section */}
       <div className="relative bg-black">
         <div className="relative h-[50vh] md:h-[55vh] overflow-hidden">
@@ -55,8 +86,8 @@ export default function RoomDetailPage() {
               </Badge>
             )} */}
             <Badge className="bg-[#F5EFE7] text-[#8B6F47] border-[#D4B896]">
-                ยอดนิยม
-              </Badge>
+              ยอดนิยม
+            </Badge>
 
             {/* {room.recommended && (
               <Badge className="bg-[#8B6F47] text-white">แนะนำ</Badge>
@@ -64,7 +95,6 @@ export default function RoomDetailPage() {
             {room.premium && (
               <Badge className="bg-[#8B6F47] text-white">Premium</Badge>
             )} */}
-            
           </div>
         </div>
 
@@ -88,7 +118,6 @@ export default function RoomDetailPage() {
 
       {/* Content */}
       <div className="p-6 md:p-8 bg-white">
-
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-[#8B6F47] mb-2 text-xl">{room.roomType}</h2>
@@ -96,10 +125,8 @@ export default function RoomDetailPage() {
           <div className="flex items-center gap-4 mt-4">
             <div className="flex items-center gap-2 text-[#8B6F47]">
               <Maximize2 className="w-4 h-4" />
-
-              <span className="text-sm">{room.size}</span> 
-             size room เพิ่มใน dataBase 
-
+              <span className="text-sm">{room.size}</span>
+              size room เพิ่มใน dataBase
             </div>
 
             <div className="flex items-center gap-2 text-[#8B6F47]">
@@ -107,7 +134,6 @@ export default function RoomDetailPage() {
               <span className="text-sm">{room.capacity}</span>
               เพิ่มใน dataBase
             </div>
-
           </div>
         </div>
 
@@ -132,7 +158,10 @@ export default function RoomDetailPage() {
               <Calendar className="w-4 h-4 mr-2" />
               จองห้องนี้
             </Button>
-            <Button className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto">
+            <Button
+              onClick={goToNextRoom}
+              className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto"
+            >
               ดูห้องถัดไป
             </Button>
           </div>
@@ -149,4 +178,3 @@ export default function RoomDetailPage() {
     </div>
   );
 }
-

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { addCatInfo, catInfo, roomType } from "../Controllers/info.controller.js";
+import { addCatInfo, catInfo, getAllRoomTypes, roomType } from "../Controllers/info.controller.js";
 
 
 const infoRoute = Router()
 
 //get roomtype
-infoRoute.get('/roomtype', roomType)
+infoRoute.get('/roomtype', getAllRoomTypes)
 infoRoute.get('/roomtype/:slug', roomType)
 //Add Cat detail info
 infoRoute.post('/catinfo', addCatInfo)

@@ -1,5 +1,14 @@
-import { createCatInfo, getCatInfo, getRoomDetail } from "../Services/info.service.js"
+import { createCatInfo, getAllRoomService, getCatInfo, getRoomDetail } from "../Services/info.service.js"
 import { addCatInfoSchema } from "../Validations/schema.js"
+
+export const getAllRoomTypes = async (req, res, next)=>{
+    try {
+        const rooms = await getAllRoomService()
+        res.json({roomType: rooms})
+    } catch (error) {
+        next(error)
+    }
+}
 
 export const roomType = async(req, res, next)=>{
     try {

@@ -1,5 +1,4 @@
-import { useCallback, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import { getMe } from "./api/auth";
 

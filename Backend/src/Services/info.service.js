@@ -1,6 +1,10 @@
 import prisma from "../Config/prisma.config.js"
 
 
+export const getAllRoomService = async()=>{
+    return await prisma.roomtype.findMany()
+}
+
 export const getRoomDetail = async(slug)=>{
 
     const roomDetail = await prisma.roomtype.findUnique({
