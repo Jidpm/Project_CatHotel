@@ -4,6 +4,8 @@ import rateLimit from 'express-rate-limit';
  * General API rate limiter
  * Limits: 100 requests per 15 minutes per IP
  */
+
+//วิธีการควบคุมจำนวนคำขอที่ส่งไปยัง API ภายในกรอบเวลาที่กำหนด
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs

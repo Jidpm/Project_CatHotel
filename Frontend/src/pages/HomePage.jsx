@@ -55,7 +55,7 @@ const HomePage = () => {
 
   return (
     <>
-      {/* Hero Section - Full Width Image with Overlay */}
+      {/* Hero Section */}
       <section
         id="home"
         className="relative h-[90vh] flex items-center justify-center overflow-hidden"
@@ -166,7 +166,8 @@ const HomePage = () => {
 
               <TabsContent value="standard">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="rounded-2xl overflow-hidden">
+                  <div className="rounded-2xl overflow-hidden m-auto">
+                    รูปห้อง
                     {/* <ImageWithFallback
                       src="https://images.unsplash.com/photo-1690335466277-7968a05daa74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjByZWxheGluZ3xlbnwxfHx8fDE3NjI0NDU3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                       alt="Standard Room"

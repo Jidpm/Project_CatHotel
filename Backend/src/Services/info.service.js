@@ -17,15 +17,14 @@ export const getRoomDetail = async(slug)=>{
     return roomDetail
 } 
 
-export async function getCatInfo(catName) {
-    const catInfo = await prisma.catInfo.findMany({
-        where: {catName }
+export const getCatsByUserIdService = async (userId) => {
+    return await prisma.catInfo.findMany({
+        where: { userId },
     })
-    return catInfo
 }
 
-export const createCatInfo = async (catInfoData)=>{
-    return await prisma.catInfo.create({
-        data: catInfoData
-    })
-}
+// export const createCatInfo = async (catInfoData)=>{
+//     return await prisma.catInfo.create({
+//         data: catInfoData
+//     })
+// }

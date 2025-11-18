@@ -29,6 +29,7 @@ app.use('/health', healthRoute)
 app.use('/api/', apiLimiter)
 
 app.use('/api/auth', authRoute)
+
 app.use('/api/info', infoRoute)
 
 

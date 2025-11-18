@@ -4,13 +4,53 @@ import { Card } from "../components/ui/card";
 import { User } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { History } from "lucide-react";
 import { Edit } from "lucide-react";
+import { useState } from "react";
+import { useEffect } from "react";
 
 export default function ProfilePage() {
-  const { userData, myCats, logout } = useAuthStore();
+  const { userData, logout } = useAuthStore();
+  const [catsInfo, setCatsInfo] = useState([]);
   const navigate = useNavigate();
+
+  const authStorage = JSON.parse(localStorage.getItem("auth-storage"));
+  console.log(localStorage);
+  const user = authStorage?.state?.userData || null;
+  console.log("userId", user);
+  const userId = user?.id;
+  console.log("userId", userId);
+  useEffect(() => {
+    if (!userId) {
+      console.log("❌ ไม่พบ userId");
+      return;
+    }
+    console.log(userId);
+
+    // ดึงข้อมูลแมวจาก backend
+    const fetchCats = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8900/api/info/catsinfo/${userId}`
+        );
+        const data = await res.json();
+
+        console.log("🐱 Data from backend:", data);
+
+        setCatsInfo(data.cats || []);
+      } catch (error) {
+        console.error("Error fetching cats:", error);
+      }
+    };
+
+    fetchCats();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -80,53 +120,96 @@ export default function ProfilePage() {
           {/* My Cats Tab */}
           <TabsContent value="cats" className="space-y-4 mt-6">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[#8B6F47]">
-                แมวของฉัน... ตัว
-              </h4>
+              <h4 className="text-[#8B6F47]">แมวของฉัน... ตัว</h4>
               <Button
                 variant="outline"
                 className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
-               
               >
                 + เพิ่มข้อมูลแมว
               </Button>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* {myCats.map((cat) => ( */}
-                <Card
-                 
-                  className="overflow-hidden border-[#E8DCC8] hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex gap-4 p-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                      {/* <ImageWithFallback
-                        src={cat.image}
+            <div className="grid md:grid-cols-2 gap-6">
+              {catsInfo.length > 0 ? (
+                catsInfo.map((cat) => (
+                  <Card
+                    key={cat.id}
+                    className="p-4 bg-white border-[#E8DCC8] shadow-sm hover:shadow-md transition rounded-lg"
+                  >
+                    <Cat className="text-[#8B6F47]"/>
+                    {/* รูปแมว */}
+                    <div className="w-full h-40 overflow-hidden">
+                      รูปแมว
+                      {/* <img
+                        src={cat.image || "/default-cat.jpg"}
                         alt={cat.name}
                         className="w-full h-full object-cover"
                       /> */}
                     </div>
-                    <div className="flex-1">
-                      <h5 className="text-[#8B6F47] mb-1">Cat name</h5>
-                      <p className="text-sm text-[#A68A64] mb-2">
-                        สายพันธุ์: ...
-                      </p>
-                      <div className="flex gap-4 text-xs text-[#A68A64]">
-                        <span>อายุ: ...</span>
-                        <span>สี: ...</span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-[#8B6F47] hover:bg-[#F5EFE7]"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </Card>
-              {/* ))} */}
+                    <h3 className="font-semibold text-lg text-[#8B6F47]">
+                      {cat.name}
+                    </h3>
+
+                    <p className="text-sm text-[#A68A64] mt-2">
+                      <strong>สายพันธุ์:</strong> {cat.breed}
+                    </p>
+
+                    <p className="text-sm text-[#A68A64]">
+                      <strong>อายุ:</strong> {cat.age}
+                    </p>
+
+                    <p className="text-sm text-[#A68A64] mt-2 whitespace-pre-line">
+                      <strong>ประวัติสุขภาพ:</strong> {cat.healthInfo}
+                    </p>
+                  </Card>
+                ))
+              ) : (
+                <p>ยังไม่มีข้อมูลแมว</p>
+              )}
             </div>
+
+            {/* <div className="grid md:grid-cols-2 gap-4">
+              <Card className="overflow-hidden border-[#E8DCC8] hover:shadow-lg transition-shadow">
+                <div className="flex gap-4 p-4">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0"> */}
+            {/* <ImageWithFallback
+                        src={cat.image}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                      /> */}
+            {/* </div>
+                  <div className="flex-1">
+                    <div className="grid grid-cols-0 gap-4 mt-4 text-[#A68A64]">
+                      <Cat/>
+                      {catsInfo.length > 0 ? (
+                        catsInfo.map((cat) => (
+                          <div
+                            key={cat.id}
+                            className="border p-2 rounded-lg bg-white shadow-sm "
+                          >
+                            <h3 className="font-semibold text-lg">
+                              {cat.catName}
+                            </h3>
+                            <p>สายพันธุ์: {cat.breed}</p>
+                            <p>อายุ: {cat.age}</p>
+                            <p>ประวัติสุขภาพ: {cat.healthInfo}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p>ยังไม่มีข้อมูลแมว</p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-[#8B6F47] hover:bg-[#F5EFE7]"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                </div>
+              </Card>
+            </div> */}
           </TabsContent>
 
           {/* Booking History Tab */}
@@ -135,21 +218,16 @@ export default function ProfilePage() {
 
             <div className="space-y-3">
               {/* bookingHistory.map((booking) => ( */}
-                <Card
-                
-                  className="border-[#E8DCC8] hover:shadow-md transition-shadow"
-                >
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h5 className="text-[#8B6F47] mb-1">
-                          Booking room name
-                        </h5>
-                        <p className="text-sm text-[#A68A64]">
-                          รหัสการจอง:  booking id
-                        </p>
-                      </div>
-                      {/* <span
+              <Card className="border-[#E8DCC8] hover:shadow-md transition-shadow">
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h5 className="text-[#8B6F47] mb-1">Booking room name</h5>
+                      <p className="text-sm text-[#A68A64]">
+                        รหัสการจอง: booking id
+                      </p>
+                    </div>
+                    {/* <span
                         className={`px-3 py-1 rounded-full text-sm ${
                           booking.status === "เสร็จสิ้น"
                             ? "bg-green-100 text-green-700"
@@ -159,34 +237,32 @@ export default function ProfilePage() {
                         booking status
                         {booking.status}
                       </span> */}
-                    </div>
+                  </div>
 
-                    <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
-                      <div>
-                        <p className="text-[#A68A64] mb-1">เช็คอิน</p>
-                        <p className="text-[#8B6F47]">Booking check-in</p>
-                      </div>
-                      <div>
-                        <p className="text-[#A68A64] mb-1">เช็คเอาท์</p>
-                        <p className="text-[#8B6F47]">Booking check-out</p>
-                      </div>
-                      <div>
-                        <p className="text-[#A68A64] mb-1">ยอดชำระ</p>
-                        <p className="text-[#8B6F47]">
-                          ฿ booking total
-                        </p>
-                      </div>
+                  <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
+                    <div>
+                      <p className="text-[#A68A64] mb-1">เช็คอิน</p>
+                      <p className="text-[#8B6F47]">Booking check-in</p>
                     </div>
+                    <div>
+                      <p className="text-[#A68A64] mb-1">เช็คเอาท์</p>
+                      <p className="text-[#8B6F47]">Booking check-out</p>
+                    </div>
+                    <div>
+                      <p className="text-[#A68A64] mb-1">ยอดชำระ</p>
+                      <p className="text-[#8B6F47]">฿ booking total</p>
+                    </div>
+                  </div>
 
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
-                      >
-                        ดูรายละเอียด
-                      </Button>
-                      {/* {booking.status === "กำลังจอง" && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
+                    >
+                      ดูรายละเอียด
+                    </Button>
+                    {/* {booking.status === "กำลังจอง" && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -195,9 +271,9 @@ export default function ProfilePage() {
                           ยกเลิกการจอง
                         </Button>
                       )} */}
-                    </div>
                   </div>
-                </Card>
+                </div>
+              </Card>
               {/* )) */}
             </div>
           </TabsContent>

@@ -1,5 +1,5 @@
-import { createCatInfo, getAllRoomService, getCatInfo, getRoomDetail } from "../Services/info.service.js"
-import { addCatInfoSchema } from "../Validations/schema.js"
+import { getAllRoomService, getCatsByUserIdService, getRoomDetail } from "../Services/info.service.js"
+// import { addCatInfoSchema } from "../Validations/schema.js"
 
 export const getAllRoomTypes = async (req, res, next)=>{
     try {
@@ -24,28 +24,31 @@ export const roomType = async(req, res, next)=>{
     }
 }
 
-export const addCatInfo = async(req, res, next)=>{
+export const getCatInfoByUserId = async (req, res, next) => {
     try {
-        //validation
-        const catDetailInfo = addCatInfoSchema.parse(req.body)
+        const { userId } = req.params;
 
-        const newCatInfo = {...catDetailInfo }
-        const result = await createCatInfo(newCatInfo)
-        res.json({
-            message: "Add info successful",
-            result: result
-        })
-    } catch (error) {
-        next(error)
-    }
-}
+        const cats = await getCatsByUserIdService(Number(userId));
 
-export const catInfo = async(req, res, next)=>{
-    try {
-        const catName = req.body.catName
-        const catDetail = await getCatInfo(catName)
-        res.json({catDetail})
+        return res.json({ cats });
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
+
+// export const addCatInfo = async(req, res, next)=>{
+//     try {
+//         //validation
+//         const catDetailInfo = addCatInfoSchema.parse(req.body)
+
+//         const newCatInfo = {...catDetailInfo }
+//         const result = await createCatInfo(newCatInfo)
+//         res.json({
+//             message: "Add info successful",
+//             result: result
+//         })
+//     } catch (error) {
+//         next(error)
+//     }
+// }
+

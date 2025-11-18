@@ -9,7 +9,7 @@ export default function App() {
   const {
     setUserData,
     setIsLoggedIn,
-    logout,
+    // logout,
   } = useAuthStore();
 
   useEffect(() => {

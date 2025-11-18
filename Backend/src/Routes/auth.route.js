@@ -15,8 +15,8 @@ authRoute.get('/profile', authMiddleware, profileUser)
 
 
 //Everyone can see Settings but need to login
-authRoute.get('/settings', authMiddleware, getSettings)
+// authRoute.get('/settings', authMiddleware, getSettings)
 //Admin can update setting
-authRoute.put('/settings', authMiddleware, adminMiddleWare, updateSettings)
+// authRoute.put('/settings', authMiddleware, adminMiddleWare, updateSettings)
 
 export default authRoute
