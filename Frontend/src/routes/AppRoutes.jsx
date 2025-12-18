@@ -6,6 +6,9 @@ import MainLayout from "../components/layouts/MainLayout";
 import RoomsDetailPage from "../pages/RoomsDetailPage";
 import ContactPage from "../pages/ContactPage";
 
+import BookingSuccess from "../pages/BookingSuccessPage";
+import { BookingDialog } from "../pages/BookingDialog";
+
 
 
 const userRouter = createBrowserRouter([
@@ -16,11 +19,13 @@ const userRouter = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "/profile", element: <ProfilePage /> },
       { path: "/roomtype/:slug", element: <RoomsDetailPage/>},
-      { path: "/contact", element: <ContactPage/>}
+      { path: "/contact", element: <ContactPage/>},
+      { path: "/booking", element: <BookingDialog/>}, 
+      { path: "/booking-success", element: <BookingSuccess/>},   
     ],
   },
 ]);
-
+//protect 
 export default function AppRoutes() {
   return <RouterProvider router={userRouter} />;
 }

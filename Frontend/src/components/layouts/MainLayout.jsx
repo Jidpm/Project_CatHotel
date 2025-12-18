@@ -45,7 +45,7 @@ const MainLayout = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-[#8B6F47] to-[#6F5638] rounded-lg flex items-center justify-center">
                 <Cat className="w-6 h-6 text-white" />
               </div>
-              <span className="text-[#8B6F47]">Kuma Cat Hotel</span>
+              <span onClick={()=>navigate('/')} className="cursor-pointer text-[#8B6F47]">Kuma Cat Hotel</span>
             </div>
 
             <nav className="hidden md:flex items-center gap-8">
@@ -56,12 +56,6 @@ const MainLayout = () => {
                 Home
               </Link>
               <Link to="/roomtype/standard-room" className="text-sm text-[#8B6F47] hover:text-[#6F5638]">Rooms</Link>
-              {/* จะให้สกอลงมาหน้าrooms */}
-              {/* <Link to="about"
-                className="text-sm text-[#8B6F47] hover:text-[#6F5638]"
-              >
-                About
-              </Link> */}
               <Link
                 to="/contact"
                 className="text-sm text-[#8B6F47] hover:text-[#6F5638]"

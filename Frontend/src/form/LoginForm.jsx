@@ -26,9 +26,6 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister, onOpenChange }) {
   alert("เข้าสู่ระบบสำเร็จ!");
 };
 
-
-
-
   const handleChange = (e) => {
   const { name, value } = e.target;
   setForm((prev) => ({
@@ -36,10 +33,10 @@ function LoginForm({ onLoginSuccess, onSwitchToRegister, onOpenChange }) {
     [name]: value,
   }));
 };
-  
 
    const handleSwitchToRegister = (e) => {
     e?.preventDefault();
+    //ใส่เพื่อกันไม่ให้ dialog
     e?.stopPropagation();
     
     if (typeof onSwitchToRegister === 'function') {

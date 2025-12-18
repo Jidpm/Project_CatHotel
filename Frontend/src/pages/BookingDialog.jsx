@@ -1,13 +1,15 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Checkbox } from "./ui/checkbox";
-import { Calendar } from "./ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../components/ui/dialog";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
+import { Checkbox } from "../components/ui/checkbox";
+import { Calendar } from "../components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+// import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useState } from "react";
-import { Calendar as CalendarIcon, X, Check, Info } from "lucide-react";
+import { Calendar as CalendarIcon, X, Check, Info, Cat as CatIcon } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
@@ -18,18 +20,13 @@ const additionalServices = [
   { id: "pickup", name: "บริการรับส่งถึงบ้าน", price: 300 },
 ];
 
-export function BookingDialog({ room, open, onOpenChange }) {
+export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceedToPayment, userData }) {
   const [checkIn, setCheckIn] = useState();
   const [checkOut, setCheckOut] = useState();
   const [selectedServices, setSelectedServices] = useState([]);
   
-  // Form data
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [catName, setCatName] = useState("");
-  const [catAge, setCatAge] = useState("");
-  const [catBreed, setCatBreed] = useState("");
+  // Form data - now auto-filled from userData
+  const [selectedCatId, setSelectedCatId] = useState("");
   const [specialNotes, setSpecialNotes] = useState("");
 
   if (!room) return null;
@@ -75,19 +72,23 @@ export function BookingDialog({ room, open, onOpenChange }) {
       return;
     }
 
+    if (!selectedCatId) {
+      alert("กรุณาเลือกน้องแมว");
+      return;
+    }
+
+    // Find selected cat details
+    const selectedCat = myCats.find(cat => String(cat.id) === selectedCatId);
+
     // Here you would send the booking data to your backend
     const bookingData = {
-      room: room.id,
+      room: room,
       customer: {
-        name: customerName,
-        email: customerEmail,
-        phone: customerPhone,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
       },
-      cat: {
-        name: catName,
-        age: catAge,
-        breed: catBreed,
-      },
+      selectedCat: selectedCat,
       checkIn,
       checkOut,
       nights: calculateNights(),
@@ -96,7 +97,13 @@ export function BookingDialog({ room, open, onOpenChange }) {
       specialNotes,
     };
 
-    alert(`✅ จองห้องพักสำเร็จ!\n\nห้อง: ${room.name}\nระยะเวลา: ${calculateNights()} คืน\nราคารวม: ฿${calculateTotal().toLocaleString()}\n\nเราจะติดต่อกลับเพื่อยืนยันการจองภายใน 24 ชั่วโมง`);
+    console.log("Booking data:", bookingData);
+    
+    // Pass booking data to parent for payment
+    if (onProceedToPayment) {
+      onProceedToPayment(bookingData);
+    }
+    
     onOpenChange(false);
   };
 
@@ -115,7 +122,9 @@ export function BookingDialog({ room, open, onOpenChange }) {
 
         <DialogHeader>
           <DialogTitle className="text-[#8B6F47]">จองห้องพัก</DialogTitle>
-          <p className="text-[#A68A64]">{room.name} - ฿{room.price}/วัน</p>
+          <DialogDescription className="text-[#A68A64]">
+            {room.name} - ฿{room.price}/วัน
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
@@ -135,11 +144,10 @@ export function BookingDialog({ room, open, onOpenChange }) {
                 </Label>
                 <Input
                   id="customerName"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="กรอกชื่อ-นามสกุล"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                  required
+                  value={userData?.name || ""}
+                  className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
+                  disabled
+                  readOnly
                 />
               </div>
 
@@ -150,11 +158,10 @@ export function BookingDialog({ room, open, onOpenChange }) {
                 <Input
                   id="customerEmail"
                   type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                  required
+                  value={userData?.email || ""}
+                  className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
+                  disabled
+                  readOnly
                 />
               </div>
 
@@ -165,11 +172,10 @@ export function BookingDialog({ room, open, onOpenChange }) {
                 <Input
                   id="customerPhone"
                   type="tel"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  placeholder="08X-XXX-XXXX"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                  required
+                  value={userData?.phone || ""}
+                  className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
+                  disabled
+                  readOnly
                 />
               </div>
             </div>
@@ -186,44 +192,37 @@ export function BookingDialog({ room, open, onOpenChange }) {
             
             <div className="grid md:grid-cols-3 gap-4 pl-8">
               <div className="space-y-2">
-                <Label htmlFor="catName" className="text-[#8B6F47]">
+                <Label htmlFor="selectedCatId" className="text-[#8B6F47]">
                   ชื่อน้องแมว <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="catName"
-                  value={catName}
-                  onChange={(e) => setCatName(e.target.value)}
-                  placeholder="ชื่อน้อง"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
+                <Select
+                  value={selectedCatId}
+                  onValueChange={(value) => setSelectedCatId(value)}
                   required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="catAge" className="text-[#8B6F47]">
-                  อายุ <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="catAge"
-                  value={catAge}
-                  onChange={(e) => setCatAge(e.target.value)}
-                  placeholder="เช่น 2 ปี"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="catBreed" className="text-[#8B6F47]">
-                  สายพันธุ์
-                </Label>
-                <Input
-                  id="catBreed"
-                  value={catBreed}
-                  onChange={(e) => setCatBreed(e.target.value)}
-                  placeholder="เช่น Scottish Fold"
-                  className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                />
+                >
+                  <SelectTrigger
+                    className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
+                  >
+                    <SelectValue placeholder="เลือกน้องแมวของคุณ" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-[#D4B896]">
+                    {myCats.length > 0 ? (
+                        myCats.map(cat => (
+                          <SelectItem key={cat.id} value={String(cat.id)} className="cursor-pointer hover:bg-[#FAF8F5]">
+                            <div className="flex items-center gap-2">
+                              <CatIcon className="h-4 w-4 text-[#8B6F47]" />
+                              <span>{cat.name} ({cat.breed}, {cat.age})</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-[#A68A64]">
+                          <p>ยังไม่มีข้อมูลแมว</p>
+                          <p className="text-sm">กรุณาเพิ่มข้อมูลแมวในหน้าโปรไฟล์</p>
+                        </div>
+                      )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2 md:col-span-3">

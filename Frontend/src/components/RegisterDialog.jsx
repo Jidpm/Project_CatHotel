@@ -1,12 +1,6 @@
 
-// import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-// import { Label } from "./ui/label";
-// import { Input } from "./ui/input";
-// import { Button } from "./ui/button";
-// import { registerUser } from "../api/registerUser";
 import { RegisterForm } from "../form/RegisterForm";
-import { Button } from "./ui/button";
 
 
 export function RegisterDialog({ open, onOpenChange, onSwitchToLogin }) {

@@ -7,7 +7,7 @@ import { Input } from "../components/ui/input";
 
 
 export function RegisterForm(){
-   const [formData, setFormData] = useState({
+  const initialState = {
     firstName: "",
     lastName: "",
     email: "",
@@ -15,7 +15,8 @@ export function RegisterForm(){
     address: "",
     password: "",
     confirmPassword: ""
-  });
+  }
+   const [formData, setFormData] = useState(initialState);
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -33,9 +34,15 @@ export function RegisterForm(){
     //ดัก error จาก backend
     console.error("Registration failed", error);
     alert(error.message || "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่");
+  }finally{
+    setFormData(initialState)
   }
 };
 
+
+//ล้างฟอร์ม register setstate "" 
+
+   //ตัวช่วยอัปเดตค่าใน state แบบ dynamic  ***  
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };

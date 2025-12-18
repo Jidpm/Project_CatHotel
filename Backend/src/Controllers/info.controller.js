@@ -1,5 +1,4 @@
 import { getAllRoomService, getCatsByUserIdService, getRoomDetail } from "../Services/info.service.js"
-// import { addCatInfoSchema } from "../Validations/schema.js"
 
 export const getAllRoomTypes = async (req, res, next)=>{
     try {

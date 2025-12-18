@@ -18,40 +18,20 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-
-import { useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import { BookingDialog } from "../components/BookingDialog";
 import { useNavigate } from "react-router";
-
+import { useRef } from "react";
+import { Car } from "lucide-react";
 
 const HomePage = () => {
-  // Use Zustand store for auth state
-  const { userData, isLoggedIn, myCats } = useAuthStore();
+  const navigate = useNavigate();
+  const ourRoomSectionRef = useRef(null);
 
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [roomDetailOpen, setRoomDetailOpen] = useState(false);
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const navigate = useNavigate()
-
-  const handleRoomClick = (room) => {
-    setSelectedRoom(room);
-    setRoomDetailOpen(true);
+  //scroll to our rooms
+  const scrollToOurRooms = () => {
+    ourRoomSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
-
-  //Handle BookThisroom
-  const handleBookThisRoom = (room) => {
-    // Check if user is logged in
-    if (!isLoggedIn) {
-      alert("⚠️ กรุณาเข้าสู่ระบบก่อนทำการจอง");
-
-      return;
-    }
-    setSelectedRoom(room);
-    setRoomDetailOpen(false);
-    setBookingOpen(true);
-  };
-
 
   return (
     <>
@@ -61,12 +41,14 @@ const HomePage = () => {
         className="relative h-[90vh] flex items-center justify-center overflow-hidden"
       >
         <div className="absolute inset-0">
-          {/* <ImageWithFallback
-            src="https://images.unsplash.com/photo-1672764788664-9f5844477a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjBob3RlbCUyMGx1eHVyeXxlbnwxfHx8fDE3NjI0ODQwMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-            alt="Cat Hotel Hero"
-            className="w-full h-full object-cover"
-          /> */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+          {/* Image */}
+          <div
+            style={{
+              backgroundImage:
+                "url('https://res.cloudinary.com/dop1xja12/image/upload/v1766025562/main_bg_ybdtrd.jpg')",
+            }}
+            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"
+          />
         </div>
 
         <div className="relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto">
@@ -84,8 +66,10 @@ const HomePage = () => {
             ในบรรยากาศอบอุ่นที่น้องๆจะรักและคุณจะวางใจ
           </p>
           <div className="flex gap-4 justify-center pt-4">
-            <Button className="bg-white cursor-pointer text-[#8B6F47] hover:bg-white/90">
-              {/* <Calendar className="w-4 h-4 mr-2" /> */}
+            <Button
+              onClick={scrollToOurRooms}
+              className="bg-white cursor-pointer text-[#8B6F47] hover:bg-white/90"
+            >
               Book Now
             </Button>
           </div>
@@ -132,7 +116,7 @@ const HomePage = () => {
       </section>
 
       {/* Rooms with Tabs */}
-      <section id="ourrooms" className="py-20 bg-white">
+      <section ref={ourRoomSectionRef} id="ourrooms" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -166,13 +150,23 @@ const HomePage = () => {
 
               <TabsContent value="standard">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="rounded-2xl overflow-hidden m-auto">
-                    รูปห้อง
-                    {/* <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1690335466277-7968a05daa74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjByZWxheGluZ3xlbnwxfHx8fDE3NjI0NDU3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                      alt="Standard Room"
-                      className="w-full h-[400px] object-cover"
-                    /> */}
+                  <div
+                    className="rounded-2xl overflow-hidden m-auto"
+                    style={{
+                      backgroundImage:
+                        "url('https://res.cloudinary.com/dop1xja12/image/upload/v1766026517/standard_room_axjlfu.jpg')",
+                    }}
+                  >
+
+                    {/* Image */}
+                    <div className="flex justify-center">
+                      <img
+                        src="https://res.cloudinary.com/dop1xja12/image/upload/v1766026517/standard_room_axjlfu.jpg"
+                        alt="Standard Room"
+                        className="w-[500px] h-[400px] object-cover rounded-xl shadow"
+                      />
+                    </div>
+                    
                   </div>
                   <div className="space-y-6">
                     <div>
@@ -222,15 +216,14 @@ const HomePage = () => {
                         <span className="text-[#8B6F47]">฿350</span>
                         <span className="text-[#A68A64]"> / วัน</span>
                       </div>
-                     
+
                       <Button
                         variant="outline"
                         className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7] cursor-pointer"
-                        onClick={()=> navigate("/roomtype/standard-room")}
+                        onClick={() => navigate("/roomtype/standard-room")}
                       >
                         More Detail
                       </Button>
-                     
                     </div>
                   </div>
                 </div>
@@ -239,11 +232,14 @@ const HomePage = () => {
               <TabsContent value="deluxe">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
                   <div className="rounded-2xl overflow-hidden">
-                    {/* <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1638826595775-e2eae86cda8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXQlMjBwbGF5aW5nfGVufDF8fHx8MTc2MjQxNjU5OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                      alt="Deluxe Room"
-                      className="w-full h-[400px] object-cover"
-                    /> */}
+                    {/* Image */}
+                    <div className="flex justify-center">
+                      <img
+                        src="https://res.cloudinary.com/dop1xja12/image/upload/v1766027348/delux_room_xzhpld.jpg"
+                        alt="Deluxe Room"
+                        className="w-[500px] h-[400px] object-cover rounded-xl shadow"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-6">
                     <div>
@@ -300,7 +296,6 @@ const HomePage = () => {
                       >
                         More Detail
                       </Button>
-                   
                     </div>
                   </div>
                 </div>
@@ -309,11 +304,14 @@ const HomePage = () => {
               <TabsContent value="suite">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
                   <div className="rounded-2xl overflow-hidden">
-                    {/* <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1579101324336-b71150dc9378?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBpbnRlcmlvciUyMGJlaWdlfGVufDF8fHx8MTc2MjQ4NDAwMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                      alt="Suite Room"
-                      className="w-full h-[400px] object-cover"
-                    /> */}
+                    {/* Image */}
+                      <div className="flex justify-center">
+                      <img
+                        src="https://res.cloudinary.com/dop1xja12/image/upload/v1766027655/suit_room_z34nna.jpg"
+                        alt="Suit Room"
+                        className="w-[500px] h-[400px] object-cover rounded-xl shadow"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-6">
                     <div>
@@ -370,7 +368,6 @@ const HomePage = () => {
                       >
                         More Detail
                       </Button>
-                  
                     </div>
                   </div>
                 </div>
@@ -411,13 +408,13 @@ const HomePage = () => {
               <Cat className="w-10 h-10 text-[#8B6F47] mb-4" />
               <h3 className="text-[#8B6F47] mb-2">เวลาเล่นพิเศษ</h3>
               <p className="text-sm text-[#A68A64] mb-4">
-                เล่นกับน้อง 1 ชั่วโมง
+                พาน้องเดินเล่น 1 ชั่วโมง
               </p>
               <span className="text-[#8B6F47]">฿150</span>
             </Card>
 
             <Card className="p-6 bg-white border-[#E8DCC8] hover:border-[#8B6F47] transition-colors">
-              {/* <Calendar className="w-10 h-10 text-[#8B6F47] mb-4" /> */}
+              <Car className="w-10 h-10 text-[#8B6F47] mb-4" />
               <h3 className="text-[#8B6F47] mb-2">รับส่งถึงบ้าน</h3>
               <p className="text-sm text-[#A68A64] mb-4">
                 บริการรับส่งในเขตใกล้เคียง
@@ -475,14 +472,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      <BookingDialog
-        open={bookingOpen}
-        onOpenChange={setBookingOpen}
-        room={selectedRoom}
-        myCats={myCats}
-        userData={userData}
-      />
     </>
   );
 };

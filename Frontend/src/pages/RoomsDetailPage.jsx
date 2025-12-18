@@ -2,16 +2,18 @@ import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
-import { Check, Calendar, Users, Maximize2 } from "lucide-react";
+import { Calendar, Maximize2 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { Cat } from "lucide-react";
+import { BookingDialog } from "./BookingDialog";
 
 export default function RoomDetailPage() {
   const { slug } = useParams();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allRooms, setAllRooms] = useState([]); //set useState for info button Next room
-  // const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const navigate = useNavigate()
+  const [openBooking, setOpenBooking] = useState(false);
+  const navigate = useNavigate();
 
   // ดึงห้องปัจจุบัน
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function RoomDetailPage() {
       try {
         const res = await fetch("http://localhost:8900/api/info/roomtype");
         const data = await res.json();
-        setAllRooms(data.roomType); // backend ต้องส่ง { roomTypes: [...] }
+        setAllRooms(data.roomType); // สมมติข้อมูลห้องทั้งหมดอยู่ใน data.roomType
       } catch (err) {
         console.error(err);
       } finally {
@@ -45,23 +47,20 @@ export default function RoomDetailPage() {
     };
 
     fetchAllRooms();
-   
   }, []);
 
   // ปุ่ม: ดูห้องถัดไป
   const goToNextRoom = () => {
-    if (!allRooms || !allRooms.length === 0){
+    if (!allRooms || !allRooms.length === 0) {
       return;
-
     }
     const currentIndex = allRooms.findIndex((room) => room.slug === slug);
-    const nextIndex = (currentIndex + 1) % allRooms.length
+    const nextIndex = (currentIndex + 1) % allRooms.length;
 
     const nextSlug = allRooms[nextIndex];
 
     navigate(`/roomtype/${nextSlug.slug}`);
   };
- 
 
   if (loading) return <p className="p-10">กำลังโหลดข้อมูล...</p>;
   if (!room) return <p className="p-10">ไม่พบข้อมูลห้องพัก</p>;
@@ -71,48 +70,20 @@ export default function RoomDetailPage() {
       {/* Image Section */}
       <div className="relative bg-black">
         <div className="relative h-[50vh] md:h-[55vh] overflow-hidden">
-          {/* รูปใหญ่ URL ดึงจาก database */}
-          {/* <img
-            src={room.images?.[currentImageIndex]?.url}
-            alt={room.name}
-            className="w-full h-full object-contain bg-black"
-          /> */}
+          {room && (
+            <img
+              src={room.imageUrl}
+              alt={room.roomType}
+              className="w-full h-[600px] object-cover rounded-xl"
+            />
+          )}
 
           {/* Badges */}
           <div className="absolute top-4 left-4 flex gap-2">
-            {/* {room.popular && (
-              <Badge className="bg-[#F5EFE7] text-[#8B6F47] border-[#D4B896]">
-                ยอดนิยม
-              </Badge>
-            )} */}
             <Badge className="bg-[#F5EFE7] text-[#8B6F47] border-[#D4B896]">
               ยอดนิยม
             </Badge>
-
-            {/* {room.recommended && (
-              <Badge className="bg-[#8B6F47] text-white">แนะนำ</Badge>
-            )}
-            {room.premium && (
-              <Badge className="bg-[#8B6F47] text-white">Premium</Badge>
-            )} */}
           </div>
-        </div>
-
-        {/* Thumbnail */}
-        <div className="flex gap-2 p-4 bg-[#FAF8F5] overflow-x-auto">
-          {/* {room.images?.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                currentImageIndex === index
-                  ? "border-[#8B6F47] scale-105"
-                  : "border-[#E8DCC8] hover:border-[#D4B896]"
-              }`}
-            >
-              <img src={image.url} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))} */}
         </div>
       </div>
 
@@ -126,13 +97,11 @@ export default function RoomDetailPage() {
             <div className="flex items-center gap-2 text-[#8B6F47]">
               <Maximize2 className="w-4 h-4" />
               <span className="text-sm">{room.size}</span>
-              size room เพิ่มใน dataBase
             </div>
 
             <div className="flex items-center gap-2 text-[#8B6F47]">
-              <Users className="w-4 h-4" />
+              <Cat className="w-4 h-4" />
               <span className="text-sm">{room.capacity}</span>
-              เพิ่มใน dataBase
             </div>
           </div>
         </div>
@@ -154,7 +123,10 @@ export default function RoomDetailPage() {
               </div>
             </div>
 
-            <Button className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto">
+            <Button
+              onClick={() => setOpenBooking(true)}
+              className="bg-[#8B6F47] hover:bg-[#6F5638] text-white w-full sm:w-auto"
+            >
               <Calendar className="w-4 h-4 mr-2" />
               จองห้องนี้
             </Button>
@@ -175,6 +147,15 @@ export default function RoomDetailPage() {
           </p>
         </div>
       </div>
+      <BookingDialog
+        open={openBooking}
+        onOpenChange={setOpenBooking}
+        room={{
+          id: room.id,
+          name: room.roomType,
+          price: room.roomPerNight,
+        }}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ infoRoute.get('/roomtype/:slug', roomType)
 
 //get cat detail info
 infoRoute.get('/catsinfo/:userId', getCatInfoByUserId)
+
 //Add Cat detail info
 // infoRoute.post('/catinfo/:userId', addCatInfo)
 

@@ -21,18 +21,16 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   const authStorage = JSON.parse(localStorage.getItem("auth-storage"));
-  console.log(localStorage);
   const user = authStorage?.state?.userData || null;
-  console.log("userId", user);
   const userId = user?.id;
-  console.log("userId", userId);
+
+  //ดึงข้อมูล user
   useEffect(() => {
     if (!userId) {
-      console.log("❌ ไม่พบ userId");
+      alert("❌ ไม่พบ userId");
       return;
     }
     console.log(userId);
-
     // ดึงข้อมูลแมวจาก backend
     const fetchCats = async () => {
       try {
@@ -40,9 +38,7 @@ export default function ProfilePage() {
           `http://localhost:8900/api/info/catsinfo/${userId}`
         );
         const data = await res.json();
-
-        console.log("🐱 Data from backend:", data);
-
+        // console.log("🐱 Data from backend:", data);
         setCatsInfo(data.cats || []);
       } catch (error) {
         console.error("Error fetching cats:", error);
@@ -74,9 +70,12 @@ export default function ProfilePage() {
         </h1>
 
         {/* User Info */}
-        <Card className="p-6 mb-8 bg-[#FAF8F5] border-[#E8DCC8]">
+        <Card className="flex items-center justify-center p-6 mb-8 bg-[#FAF8F5] border-[#E8DCC8]">
+          Profile Image
+          <button className="w-8 h-8 bg-[#8B6F47] rounded-full flex items-center justify-center text-white hover:bg-[#6F5638] transition-colors">
+            <Edit className="w-4 h-4" />
+          </button>
           <h2 className="text-lg text-[#8B6F47] mb-4">ข้อมูลผู้ใช้</h2>
-
           <div className="space-y-2 text-[#A68A64]">
             <p>
               📛 ชื่อ: {userData.firstName} {userData.lastName}
@@ -84,7 +83,6 @@ export default function ProfilePage() {
             <p>📧 อีเมล: {userData.email}</p>
             <p>📱 โทร: {userData.phoneNumber || "—"}</p>
           </div>
-
           <Button
             onClick={handleLogout}
             className="mt-4 bg-[#8B6F47] hover:bg-[#6F5638] text-white"
@@ -134,14 +132,16 @@ export default function ProfilePage() {
                 catsInfo.map((cat) => (
                   <Card
                     key={cat.id}
-                    className="p-4 bg-white border-[#E8DCC8] shadow-sm hover:shadow-md transition rounded-lg"
+                    className="relative p-4 bg-white border-[#E8DCC8] shadow-sm hover:shadow-md transition rounded-lg"
                   >
-                    <Cat className="text-[#8B6F47]"/>
+                    <button className="absolute top-3 right-3 w-8 h-8 bg-[#8B6F47] rounded-full flex items-center justify-center text-white hover:bg-[#6F5638] transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </button>
                     {/* รูปแมว */}
                     <div className="w-full h-40 overflow-hidden">
                       รูปแมว
                       {/* <img
-                        src={cat.image || "/default-cat.jpg"}
+                        src={cat.image || "/.jpg"}
                         alt={cat.name}
                         className="w-full h-full object-cover"
                       /> */}
@@ -167,49 +167,6 @@ export default function ProfilePage() {
                 <p>ยังไม่มีข้อมูลแมว</p>
               )}
             </div>
-
-            {/* <div className="grid md:grid-cols-2 gap-4">
-              <Card className="overflow-hidden border-[#E8DCC8] hover:shadow-lg transition-shadow">
-                <div className="flex gap-4 p-4">
-                  <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0"> */}
-            {/* <ImageWithFallback
-                        src={cat.image}
-                        alt={cat.name}
-                        className="w-full h-full object-cover"
-                      /> */}
-            {/* </div>
-                  <div className="flex-1">
-                    <div className="grid grid-cols-0 gap-4 mt-4 text-[#A68A64]">
-                      <Cat/>
-                      {catsInfo.length > 0 ? (
-                        catsInfo.map((cat) => (
-                          <div
-                            key={cat.id}
-                            className="border p-2 rounded-lg bg-white shadow-sm "
-                          >
-                            <h3 className="font-semibold text-lg">
-                              {cat.catName}
-                            </h3>
-                            <p>สายพันธุ์: {cat.breed}</p>
-                            <p>อายุ: {cat.age}</p>
-                            <p>ประวัติสุขภาพ: {cat.healthInfo}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p>ยังไม่มีข้อมูลแมว</p>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-[#8B6F47] hover:bg-[#F5EFE7]"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-              </Card>
-            </div> */}
           </TabsContent>
 
           {/* Booking History Tab */}
@@ -217,7 +174,6 @@ export default function ProfilePage() {
             <h4 className="text-[#8B6F47] mb-4">ประวัติการจอง</h4>
 
             <div className="space-y-3">
-              {/* bookingHistory.map((booking) => ( */}
               <Card className="border-[#E8DCC8] hover:shadow-md transition-shadow">
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-3">
@@ -227,16 +183,6 @@ export default function ProfilePage() {
                         รหัสการจอง: booking id
                       </p>
                     </div>
-                    {/* <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          booking.status === "เสร็จสิ้น"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        booking status
-                        {booking.status}
-                      </span> */}
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
@@ -262,102 +208,16 @@ export default function ProfilePage() {
                     >
                       ดูรายละเอียด
                     </Button>
-                    {/* {booking.status === "กำลังจอง" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-red-400 text-red-600 hover:bg-red-50"
-                        >
-                          ยกเลิกการจอง
-                        </Button>
-                      )} */}
+                    {/* booking status */}
                   </div>
                 </div>
               </Card>
-              {/* )) */}
             </div>
           </TabsContent>
         </Tabs>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* {myCats.map((cat) => (
-            <Card key={cat.id} className="p-4 bg-white border-[#E8DCC8]">
-              <img
-              src={cat.image}
-              alt={cat.name}
-              className="w-full h-40 object-cover rounded-lg mb-3"
-            />
-              <h3 className="text-[#8B6F47]">{cat.name}</h3>
-              <p className="text-sm text-[#A68A64]">{cat.breed}</p>
-              <p className="text-sm text-[#A68A64]">{cat.age}</p>
-              <p className="text-sm text-[#A68A64]">{cat.color}</p>
-            </Card>
-          ))} */}
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
       </div>
     </>
   );
 }
-
-// <div className="w-full min-h-screen bg-[#FAF7F2] flex justify-center py-12">
-//       <div className="bg-white shadow-lg rounded-2xl p-8 w-[600px]">
-
-//         <h2 className="text-2xl font-bold mb-6 text-[#5C3A21]">
-//           เพิ่มข้อมูลน้องแมว
-//         </h2>
-
-//         <form onSubmit={()=>{}} className="space-y-5">
-
-//           <div>
-//             <label className="block text-sm font-medium text-[#5C3A21]">
-//               ชื่อแมว
-//             </label>
-//             <input
-//               type="text"
-//               name="catName"
-//               value={()=>{}}
-//               onChange={()=>{}}
-//               className="w-full mt-1 p-2 rounded-lg border"
-//               required
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium text-[#5C3A21]">
-//               อายุ
-//             </label>
-//             <input
-//               type="number"
-//               name="age"
-//               value={()=>{}}
-//               onChange={()=>{}}
-//               className="w-full mt-1 p-2 rounded-lg border"
-//               required
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium text-[#5C3A21]">
-//               สายพันธุ์
-//             </label>
-//             <input
-//               type="text"
-//               name="breed"
-//               value={()=>{}}
-//               onChange={()=>{}}
-//               className="w-full mt-1 p-2 rounded-lg border"
-//               required
-//             />
-//           </div>
-
-//           <button
-//             type="submit"
-//             disabled={()=>{}}
-//             className="w-full bg-[#A9825A] text-white py-2 rounded-lg hover:bg-[#876A4A] transition"
-//           >
-//             {/* {loading ? "กำลังบันทึก..." : "บันทึกข้อมูล"} */}
-//           </button>
-
-//         </form>
-//       </div>
-//     </div>
