@@ -35,6 +35,7 @@ export const getCatInfoByUserId = async (req, res, next) => {
     }
 };
 
+
 // export const addCatInfo = async(req, res, next)=>{
 //     try {
 //         //validation

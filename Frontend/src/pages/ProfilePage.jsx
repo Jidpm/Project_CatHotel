@@ -14,17 +14,38 @@ import { History } from "lucide-react";
 import { Edit } from "lucide-react";
 import { useState } from "react";
 import { useEffect } from "react";
+import UpdateProfileDialog from "../components/updateProfileDialog";
 
 export default function ProfilePage() {
-  const { userData, logout } = useAuthStore();
+  const { userData, logout, setUserData } = useAuthStore();
   const [catsInfo, setCatsInfo] = useState([]);
+
+  //Edit Profile
+  const [openEdit, setOpenEdit] = useState(false);
+
   const navigate = useNavigate();
+
+  const profileImg = "https://www.svgrepo.com/show/34292/girl.svg";
+  const catImg =
+    "https://www.svgrepo.com/show/402700/smiling-cat-face-with-heart-eyes.svg";
 
   const authStorage = JSON.parse(localStorage.getItem("auth-storage"));
   const user = authStorage?.state?.userData || null;
   const userId = user?.id;
 
   //ดึงข้อมูล user
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:8900/api/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    setUserData(data.user); // หรือ update store
+  };
+
+  //ดึงข้อมูลแมว
   useEffect(() => {
     if (!userId) {
       alert("❌ ไม่พบ userId");
@@ -71,17 +92,33 @@ export default function ProfilePage() {
 
         {/* User Info */}
         <Card className="flex items-center justify-center p-6 mb-8 bg-[#FAF8F5] border-[#E8DCC8]">
-          Profile Image
-          <button className="w-8 h-8 bg-[#8B6F47] rounded-full flex items-center justify-center text-white hover:bg-[#6F5638] transition-colors">
-            <Edit className="w-4 h-4" />
-          </button>
+          <div className="relative w-40 h-40 mx-auto mb-4">
+            <img
+              src={profileImg}
+              alt="Profile"
+              className="w-40 h-40 rounded-full object-cover"
+            />
+
+            <button
+              onClick={() => setOpenEdit(true)}
+              className="absolute top-1 right-1
+               w-9 h-9 rounded-full
+               bg-[#8B6B4F] text-white
+               flex items-center justify-center
+               shadow-md hover:bg-[#75563E] cursor-pointer"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+          </div>
+
           <h2 className="text-lg text-[#8B6F47] mb-4">ข้อมูลผู้ใช้</h2>
           <div className="space-y-2 text-[#A68A64]">
             <p>
-              📛 ชื่อ: {userData.firstName} {userData.lastName}
+              ชื่อ: {userData.firstName} {userData.lastName}
             </p>
-            <p>📧 อีเมล: {userData.email}</p>
-            <p>📱 โทร: {userData.phoneNumber || "—"}</p>
+            <p> อีเมล: {userData.email}</p>
+            <p> โทร: {userData.phoneNumber || "—"}</p>
+            <p> ที่อยู่: {userData.address || "—"}</p>
           </div>
           <Button
             onClick={handleLogout}
@@ -98,17 +135,17 @@ export default function ProfilePage() {
         </h2>
         {/* Tabs Section */}
         <Tabs defaultValue="cats" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-[#F5EFE7]">
+          <TabsList className="grid w-full grid-cols-2 bg-[#F5EFE7] ">
             <TabsTrigger
               value="cats"
-              className="data-[state=active]:bg-[#8B6F47] data-[state=active]:text-white"
+              className="text-[#8B6F47] data-[state=active]:bg-[#8B6F47] data-[state=active]:text-white"
             >
               <Cat className="w-4 h-4 mr-2" />
               แมวของฉัน
             </TabsTrigger>
             <TabsTrigger
               value="bookings"
-              className="data-[state=active]:bg-[#8B6F47] data-[state=active]:text-white"
+              className="text-[#8B6F47] data-[state=active]:bg-[#8B6F47] data-[state=active]:text-white "
             >
               <History className="w-4 h-4 mr-2" />
               ประวัติการจอง
@@ -116,9 +153,9 @@ export default function ProfilePage() {
           </TabsList>
 
           {/* My Cats Tab */}
-          <TabsContent value="cats" className="space-y-4 mt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-[#8B6F47]">แมวของฉัน... ตัว</h4>
+          <TabsContent value="cats" className="space-y-4 mt-6 ">
+            <div className="flex items-center justify-between mb-4 ">
+              <h4 className="text-[#8B6F47]">แมวของฉัน</h4>
               <Button
                 variant="outline"
                 className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#F5EFE7]"
@@ -139,12 +176,11 @@ export default function ProfilePage() {
                     </button>
                     {/* รูปแมว */}
                     <div className="w-full h-40 overflow-hidden">
-                      รูปแมว
-                      {/* <img
-                        src={cat.image || "/.jpg"}
+                      <img
+                        src={catImg}
                         alt={cat.name}
-                        className="w-full h-full object-cover"
-                      /> */}
+                        className="w-40 h-full object-cover items-center mx-auto mb-4"
+                      />
                     </div>
                     <h3 className="font-semibold text-lg text-[#8B6F47]">
                       {cat.catName}
@@ -216,7 +252,12 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        <UpdateProfileDialog
+          open={openEdit}
+          onClose={() => setOpenEdit(false)}
+          user={userData}
+          onSuccess={(updatedUser) => setUserData(updatedUser)}
+        />
       </div>
     </>
   );

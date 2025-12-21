@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { loginSchema, registerSchema } from "../Validations/schema.js";
 import { createUser, getMe, getUserBy } from "../Services/user.service.js";
 import jwt from "jsonwebtoken";
-import { success } from "zod";
+import prisma from "../Config/prisma.config.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -80,7 +80,7 @@ export const profileUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    const userId = Number(rawUserId);
+    const userId = rawUserId;
 
     if (Number.isNaN(userId)) {
       return res.status(400).json({ message: "Invalid user id" });
@@ -102,5 +102,32 @@ export const profileUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { firstName, lastName, phoneNumber, address } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        firstName,
+        lastName,
+        phoneNumber,
+        address,
+      },
+    });
+
+    const { password, createdAt, updatedAt, ...userData } = user;
+
+    res.json({
+      success: true,
+      user: userData,
+    });
+  } catch (err) {
+    res.status(400).json({ message: "Update failed" });
+  }
+};
+
 
 
