@@ -147,7 +147,7 @@ export default function ProfilePage() {
                       /> */}
                     </div>
                     <h3 className="font-semibold text-lg text-[#8B6F47]">
-                      {cat.name}
+                      {cat.catName}
                     </h3>
 
                     <p className="text-sm text-[#A68A64] mt-2">

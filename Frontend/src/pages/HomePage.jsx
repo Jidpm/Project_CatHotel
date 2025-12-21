@@ -47,7 +47,7 @@ const HomePage = () => {
               backgroundImage:
                 "url('https://res.cloudinary.com/dop1xja12/image/upload/v1766025562/main_bg_ybdtrd.jpg')",
             }}
-            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"
+            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent w-full h-full bg-cover bg-center"
           />
         </div>
 

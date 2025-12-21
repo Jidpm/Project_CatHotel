@@ -76,6 +76,8 @@ model Roomtype {
   roomPerNight Float
   description  String?       @db.Text
   imageUrl     String 
+  maxCats        Int        @default(1) 
+  extraCatPrice Float       @default(0)
   roomStatus   RoomStatus    @default(AVAILABLE)
   booking      BookingRoom[]
 }

@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Calendar, Maximize2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Cat } from "lucide-react";
-import { BookingDialog } from "./BookingDialog";
+import { BookingDialog } from "../components/BookingDialog";
 
 export default function RoomDetailPage() {
   const { slug } = useParams();
@@ -154,6 +154,8 @@ export default function RoomDetailPage() {
           id: room.id,
           name: room.roomType,
           price: room.roomPerNight,
+          maxCats: room.maxCats, 
+          extraCatPrice: room.extraCatPrice,
         }}
       />
     </div>

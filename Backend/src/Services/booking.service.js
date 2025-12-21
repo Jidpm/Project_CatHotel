@@ -1,55 +1,48 @@
-import prisma from "../Config/prisma.config.js"
+import prisma from "../Config/prisma.config.js";
 
+export const createBookingService = async ({
+  userId,
+  checkInDate,
+  checkOutDate,
+  totalPrice,
+  services,
+  rooms,
+  cats,
+}) => {
+  return await prisma.$transaction(async (tx) => {
+    // 1. create booking
+    const booking = await tx.booking.create({
+      data: {
+        userId,
+        checkInDate: new Date(checkInDate),
+        checkOutDate: new Date(checkOutDate),
+        totalPrice,
+        bookingStatus: "PENDING",
+        services: JSON.stringify(services),
+      },
+    });
 
-export const createBookingService = async (data) => {
-    const {
-    userId,
-    checkInDate,
-    checkOutDate,
-    totalPrice,
-    bookingStatus,
-    services,
-    rooms,      // [{ roomtypeId: 1, quantity: 2 }]
-    cats        // [1, 2, 3] = catInfoId array
-  } = data
+    // 2. rooms
+    if (rooms?.length) {
+      await tx.bookingRoom.createMany({
+        data: rooms.map((room) => ({
+          bookingId: booking.id,
+          roomtypeId: room.roomtypeId,
+          quantity: room.quantity ?? 1,
+        })),
+      });
+    }
 
-  // ใช้ transaction เพื่อกันข้อมูลเพี้ยน ถ้าข้อมูลไม่ครบ ยกเลิกทันที
-    return await prisma.booking.$transaction(async (transaction) => {
-        //make booking
-        const booking = await transaction.booking.create({
-            data:{
-                userId,
-                checkInDate: new Date(checkInDate),
-                checkOutDate: new Date(checkOutDate),
-                totalPrice,
-                bookingStatus,
-                services: JSON.stringify(services),
-            }
-        })
+    // 3. cats ใช้ catInfoId
+    if (cats?.length) {
+      await tx.catDetailBooking.createMany({
+        data: cats.map((catId) => ({
+          bookingId: booking.id,
+          catInfoId: catId,
+        })),
+      });
+    }
 
-        //add room of booked
-        if(rooms?.length > 0){
-            await transaction.bookingRoom.createMany({
-                data: rooms.map((room) => ({
-                    bookingId: booking.id,
-                    roomtypeId: room.roomtypeId,
-                    quantity: room.quantity?? 1,
-                }))
-            })
-        }
-
-        //add cats info
-        if(cats?.length > 0){
-            await transaction.catDetailBooking.createMany({
-                data: cats.map((catId) => ({
-                    bookingId: booking.id,
-                    catInfoId: catId,
-                }))
-            })
-        }
-
-        return booking
-
-    })
-}
-
+    return booking;
+  });
+};

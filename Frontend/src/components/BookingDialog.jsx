@@ -1,114 +1,230 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../components/ui/dialog";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
-import { Checkbox } from "../components/ui/checkbox";
-import { Calendar } from "../components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-// import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { useState } from "react";
-import { Calendar as CalendarIcon, X, Check, Info, Cat as CatIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Checkbox } from "./ui/checkbox";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { useState, useEffect } from "react";
+import {
+  Calendar as CalendarIcon,
+  X,
+  Check,
+  Info,
+  Cat as CatIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useNavigate } from "react-router";
 
 const additionalServices = [
   { id: "bath", name: "บริการอาบน้ำและแปรงขน", price: 250 },
   { id: "health", name: "ตรวจสุขภาพโดยสัตวแพทย์", price: 500 },
-  { id: "play", name: "เล่นกับน้องพิเศษ (1 ชั่วโมง/วัน)", price: 150 },
+  { id: "play", name: "พาน้องเดินเล่น (2 ชั่วโมง/วัน)", price: 150 },
   { id: "pickup", name: "บริการรับส่งถึงบ้าน", price: 300 },
 ];
 
-export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceedToPayment, userData }) {
+export function BookingDialog({ room, open, onOpenChange }) {
+  const navigate = useNavigate();
   const [checkIn, setCheckIn] = useState();
   const [checkOut, setCheckOut] = useState();
   const [selectedServices, setSelectedServices] = useState([]);
-  
+
+  //fetch user data and cats
+  const [user, setUser] = useState(null);
+  const [cats, setCats] = useState([]);
+  const [loadingUser, setLoadingUser] = useState(false);
+
   // Form data - now auto-filled from userData
-  const [selectedCatId, setSelectedCatId] = useState("");
+  const [selectedCatIds, setSelectedCatIds] = useState([]);
   const [specialNotes, setSpecialNotes] = useState("");
 
   if (!room) return null;
 
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchBookingInfo = async () => {
+      try {
+        setLoadingUser(true);
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.warn("No token found");
+          return;
+        }
+
+        // 🔹 1. fetch user profile
+        const userRes = await fetch("http://localhost:8900/api/auth/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!userRes.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+
+        const data = await userRes.json();
+
+        const user = data.user;
+
+        setUser({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          id: user.id, // เพิ่ม userId เพื่อนำไป fetch cat info
+        });
+
+        // 🔹 2. fetch cat info ด้วย userId จาก profile
+        const catRes = await fetch(
+          `http://localhost:8900/api/info/catsinfo/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!catRes.ok) {
+          throw new Error("Failed to fetch cat info");
+        }
+
+        const catData = await catRes.json();
+        setCats(catData.cats || []);
+      } catch (err) {
+        console.error("fetch booking info error:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchBookingInfo();
+  }, [open]);
+
   // Calculate number of nights
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 0;
-    const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+
+    const diff =
+      new Date(checkOut).setHours(0, 0, 0, 0) -
+      new Date(checkIn).setHours(0, 0, 0, 0);
+
+    return diff > 0 ? diff / (1000 * 60 * 60 * 24) : 0;
   };
 
-  // Calculate total price
-  const calculateTotal = () => {
-    const nights = calculateNights();
-    const roomTotal = room.price * nights;
-    const servicesTotal = selectedServices.reduce((sum, serviceId) => {
-      const service = additionalServices.find(s => s.id === serviceId);
-      return sum + (service ? service.price : 0);
-    }, 0);
-    return roomTotal + servicesTotal;
-  };
-
-  const handleServiceToggle = (serviceId) => {
-    setSelectedServices(prev =>
-      prev.includes(serviceId)
-        ? prev.filter(id => id !== serviceId)
-        : [...prev, serviceId]
+  const handleServiceToggle = (serviceName) => {
+    setSelectedServices((prev) =>
+      prev.includes(serviceName)
+        ? prev.filter((id) => id !== serviceName)
+        : [...prev, serviceName]
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate
+
+    // validate เดิม ใช้ได้แล้ว
     if (!checkIn || !checkOut) {
       alert("กรุณาเลือกวันที่เข้า-ออก");
       return;
     }
-    
+
     if (calculateNights() <= 0) {
       alert("วันที่ออกต้องหลังจากวันที่เข้า");
       return;
     }
 
-    if (!selectedCatId) {
+    if (selectedCatIds.length === 0) {
       alert("กรุณาเลือกน้องแมว");
       return;
     }
 
-    // Find selected cat details
-    const selectedCat = myCats.find(cat => String(cat.id) === selectedCatId);
-
-    // Here you would send the booking data to your backend
-    const bookingData = {
-      room: room,
-      customer: {
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-      },
-      selectedCat: selectedCat,
-      checkIn,
-      checkOut,
-      nights: calculateNights(),
+    // payload สำหรับ backend
+    const payload = {
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
+      totalPrice: totalPrice,
+      bookingStatus: "PENDING",
       services: selectedServices,
-      total: calculateTotal(),
-      specialNotes,
+
+      rooms: [
+        {
+          roomtypeId: room.id,
+          quantity: 1,
+        },
+      ],
+      cats: selectedCatIds,
     };
 
-    console.log("Booking data:", bookingData);
-    
-    // Pass booking data to parent for payment
-    if (onProceedToPayment) {
-      onProceedToPayment(bookingData);
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:8900/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Create booking failed");
+      }
+
+      const data = await res.json();
+      console.log("Booking saved:", data);
+
+      onOpenChange(false); // ปิด dialog เมื่อสำเร็จ
+      navigate("/booking-success");
+    } catch (err) {
+      console.error("Create booking error:", err);
+      alert("เกิดข้อผิดพลาดในการจอง");
     }
-    
-    onOpenChange(false);
   };
 
+  const toggleCat = (catId) => {
+    setSelectedCatIds((prev) => {
+      // เอาออก
+      if (prev.includes(catId)) {
+        return prev.filter((id) => id !== catId);
+      }
+
+      // จำกัดจำนวน
+      if (prev.length >= room.maxCats) {
+        alert(`ห้องนี้ฝากได้สูงสุด ${room.maxCats} ตัว`);
+        return prev;
+      }
+
+      // เพิ่ม
+      return [...prev, catId];
+    });
+  };
+
+  const totalCats = selectedCatIds.length;
+
   const nights = calculateNights();
-  const total = calculateTotal();
+  const roomPricePerNight = Number(room?.price ?? 0);
+  const roomCost = roomPricePerNight * nights;
+  const extraCats = Math.max(0, totalCats - 1);
+  const extraCatPrice = Number(room.extraCatPrice ?? 0);
+  const extraCatCost = extraCats * extraCatPrice * nights;
+
+  const serviceTotal = selectedServices.reduce((sum, name) => {
+    const s = additionalServices.find((x) => x.name === name);
+    return sum + Number(s?.price ?? 0);
+  }, 0);
+
+  const totalPrice = roomCost + extraCatCost + serviceTotal;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,15 +252,15 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
               </div>
               ข้อมูลผู้จอง
             </h3>
-            
-            <div className="grid md:grid-cols-2 gap-4 pl-8">
+
+            <div className="grid md:grid-cols-2 gap-4 px-8">
               <div className="space-y-2">
                 <Label htmlFor="customerName" className="text-[#8B6F47]">
                   ชื่อ-นามสกุล <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="customerName"
-                  value={userData?.name || ""}
+                  value={user ? `${user.firstName} ${user.lastName}` : ""}
                   className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
                   disabled
                   readOnly
@@ -158,7 +274,7 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
                 <Input
                   id="customerEmail"
                   type="email"
-                  value={userData?.email || ""}
+                  value={user?.email || ""}
                   className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
                   disabled
                   readOnly
@@ -172,7 +288,7 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
                 <Input
                   id="customerPhone"
                   type="tel"
-                  value={userData?.phone || ""}
+                  value={user?.phoneNumber || ""}
                   className="border-[#D4B896] bg-[#F5EFE7] text-[#8B6F47]"
                   disabled
                   readOnly
@@ -189,40 +305,37 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
               </div>
               ข้อมูลน้องแมว
             </h3>
-            
-            <div className="grid md:grid-cols-3 gap-4 pl-8">
-              <div className="space-y-2">
-                <Label htmlFor="selectedCatId" className="text-[#8B6F47]">
-                  ชื่อน้องแมว <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={selectedCatId}
-                  onValueChange={(value) => setSelectedCatId(value)}
-                  required
-                >
-                  <SelectTrigger
-                    className="border-[#D4B896] focus:border-[#8B6F47] bg-[#FAF8F5]"
-                  >
-                    <SelectValue placeholder="เลือกน้องแมวของคุณ" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-[#D4B896]">
-                    {myCats.length > 0 ? (
-                        myCats.map(cat => (
-                          <SelectItem key={cat.id} value={String(cat.id)} className="cursor-pointer hover:bg-[#FAF8F5]">
-                            <div className="flex items-center gap-2">
-                              <CatIcon className="h-4 w-4 text-[#8B6F47]" />
-                              <span>{cat.name} ({cat.breed}, {cat.age})</span>
-                            </div>
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="p-4 text-center text-[#A68A64]">
-                          <p>ยังไม่มีข้อมูลแมว</p>
-                          <p className="text-sm">กรุณาเพิ่มข้อมูลแมวในหน้าโปรไฟล์</p>
+
+            <div className="grid md:grid-cols-3 gap-4 px-8">
+              <div className="space-y-2 md:col-span-3">
+                <div className="space-y-2">
+                  <Label className="text-[#8B6F47]">
+                    ชื่อน้องแมว <span className="text-red-500">*</span>
+                  </Label>
+
+                  {cats.length > 0 ? (
+                    <div className="space-y-2">
+                      {cats.map((cat) => (
+                        <div
+                          key={cat.id}
+                          className="w-full flex items-center gap-4 p-4 rounded-lg border border-[#E6D8C3] bg-[#FAF8F5]"
+                        >
+                          <Checkbox
+                            checked={selectedCatIds.includes(cat.id)}
+                            onCheckedChange={() => toggleCat(cat.id)}
+                          />
+
+                          <span className="text-[#8B6F47] flex items-center gap-2">
+                            <CatIcon className="w-4 h-4" />
+                            {cat.catName} ({cat.breed}, {cat.age})
+                          </span>
                         </div>
-                      )}
-                  </SelectContent>
-                </Select>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[#A68A64]">ยังไม่มีข้อมูลแมว</p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2 md:col-span-3">
@@ -248,8 +361,8 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
               </div>
               เลือกวันที่เข้า-ออก
             </h3>
-            
-            <div className="grid md:grid-cols-2 gap-4 pl-8">
+
+            <div className="grid md:grid-cols-2 gap-4 px-8">
               <div className="space-y-2">
                 <Label className="text-[#8B6F47]">
                   วันที่เข้า <span className="text-red-500">*</span>
@@ -318,36 +431,37 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
             {nights > 0 && (
               <div className="pl-8 p-3 bg-[#F5EFE7] rounded-lg">
                 <p className="text-[#8B6F47] text-sm">
-                  ระยะเวลาพัก: <span className="font-semibold">{nights} คืน</span>
+                  ระยะเวลาพัก:{" "}
+                  <span className="font-semibold">{nights} คืน</span>
                 </p>
               </div>
             )}
           </div>
 
           {/* Additional Services */}
-          <div className="space-y-4">
+          <div className="space-y-4 pr-8">
             <h3 className="text-[#8B6F47] flex items-center gap-2">
               <div className="w-6 h-6 bg-[#8B6F47] rounded-full flex items-center justify-center text-white text-sm">
                 4
               </div>
               บริการเสริม (ถ้ามี)
             </h3>
-            
+
             <div className="space-y-3 pl-8">
               {additionalServices.map((service) => (
                 <div
-                  key={service.id}
+                  key={service.name}
                   className="flex items-center justify-between p-3 bg-[#FAF8F5] rounded-lg hover:bg-[#F5EFE7] transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <Checkbox
-                      id={service.id}
-                      checked={selectedServices.includes(service.id)}
-                      onCheckedChange={() => handleServiceToggle(service.id)}
+                      id={service.name}
+                      checked={selectedServices.includes(service.name)}
+                      onCheckedChange={() => handleServiceToggle(service.name)}
                       className="border-[#8B6F47] data-[state=checked]:bg-[#8B6F47]"
                     />
                     <Label
-                      htmlFor={service.id}
+                      htmlFor={service.name}
                       className="text-[#8B6F47] cursor-pointer"
                     >
                       {service.name}
@@ -362,42 +476,48 @@ export function BookingDialog({ room, open, onOpenChange, myCats = [], onProceed
           {/* Summary */}
           <div className="border-t border-[#E8DCC8] pt-6">
             <h3 className="text-[#8B6F47] mb-4">สรุปการจอง</h3>
-            
-            <div className="space-y-2 bg-[#FAF8F5] p-4 rounded-lg">
+
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between text-[#8B6F47]">
                 <span>ห้องพัก ({nights} คืน)</span>
-                <span>฿{(room.price * nights).toLocaleString()}</span>
+                <span>฿{roomCost}</span>
               </div>
-              
-              {selectedServices.length > 0 && (
-                <>
-                  <div className="border-t border-[#E8DCC8] pt-2">
-                    <p className="text-sm text-[#A68A64] mb-2">บริการเสริม:</p>
-                    {selectedServices.map((serviceId) => {
-                      const service = additionalServices.find(s => s.id === serviceId);
-                      return service ? (
-                        <div key={serviceId} className="flex justify-between text-sm text-[#8B6F47] ml-4">
-                          <span>• {service.name}</span>
-                          <span>฿{service.price}</span>
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                </>
-              )}
-              
-              <div className="border-t border-[#E8DCC8] pt-2 mt-2">
-                <div className="flex justify-between text-[#8B6F47]">
-                  <span>ราคารวมทั้งหมด</span>
-                  <span>฿{total.toLocaleString()}</span>
+              {extraCats > 0 && (
+                <div className="flex justify-between text-sm text-[#8B6F47]">
+                  <span>แมวเพิ่ม {extraCats} ตัว</span>
+                  <span>฿{extraCatCost}</span>
                 </div>
+              )}
+
+              {selectedServices.map((serviceName) => {
+                const service = additionalServices.find(
+                  (s) => s.name === serviceName
+                );
+                if (!service) return null;
+
+                return (
+                  <div
+                    key={service.name}
+                    className="flex justify-between text-[#8B6F47]"
+                  >
+                    <span>{service.name}</span>
+                    <span>฿{service.price}</span>
+                  </div>
+                );
+              })}
+
+              <hr />
+              <div className="flex justify-between font-semibold text-base text-[#8B6F47]">
+                <span>ราคารวมทั้งหมด</span>
+                <span>฿{totalPrice}</span>
               </div>
             </div>
 
             <div className="flex items-start gap-2 mt-4 p-3 bg-[#FEF7E8] border border-[#E8DCC8] rounded-lg">
               <Info className="w-5 h-5 text-[#8B6F47] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-[#8B6F47]">
-                หลังจากกดยืนยัน ทางทีมงานจะติดต่อกลับภายใน 24 ชั่วโมง เพื่อยืนยันการจองและแจ้งรายละเอียดการชำระเงิน
+                หลังจากกดยืนยัน ทางทีมงานจะติดต่อกลับภายใน 24 ชั่วโมง
+                เพื่อยืนยันการจองและแจ้งรายละเอียดการชำระเงิน
               </p>
             </div>
           </div>

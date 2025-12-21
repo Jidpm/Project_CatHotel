@@ -1,9 +1,10 @@
 import { createBookingService } from "../Services/booking.service.js";
 
-export const createBooking = async (req, res) => {
+export const createBooking = async (req, res, next) => {
   try {
+    const userId = req.user?.id || req.user?.userId;
+
     const {
-      userId,
       checkInDate,
       checkOutDate,
       totalPrice,
@@ -13,10 +14,10 @@ export const createBooking = async (req, res) => {
       cats = [],
     } = req.body;
 
-    if (!userId || !checkInDate || !checkOutDate) {
+    if (!checkInDate || !checkOutDate) {
       return res.status(400).json({
         message: "Missing required fields (userId, checkInDate, checkOutDate)",
-      })
+      });
     }
 
     // service
@@ -29,18 +30,17 @@ export const createBooking = async (req, res) => {
       services,
       rooms,
       cats,
-    })
+    });
 
     return res.status(201).json({
-        message: "Booking created successfully",
-        booking,
-    })
-
+      message: "Booking created successfully",
+      booking,
+    });
   } catch (error) {
-    console.error("Create Booking Error:", error)
+    console.error("Create Booking Error:", error);
     return res.status(500).json({
-        message: "Internal server error",
-        error: error.message,
-    })
+      message: "Internal server error",
+      error: error.message,
+    });
   }
-}
+};

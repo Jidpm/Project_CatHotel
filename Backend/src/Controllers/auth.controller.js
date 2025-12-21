@@ -7,8 +7,14 @@ import { success } from "zod";
 
 export const register = async (req, res, next) => {
   try {
-    const { phoneNumber, email, firstName, lastName, password, confirmPassword } =
-      req.body;
+    const {
+      phoneNumber,
+      email,
+      firstName,
+      lastName,
+      password,
+      confirmPassword,
+    } = req.body;
 
     //validation
     const user = registerSchema.parse(req.body);
@@ -48,12 +54,12 @@ export const login = async (req, res, next) => {
     const payload = {
       id: foundUser.id,
       role: foundUser.role,
-    }
+    };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "15d",
-      algorithm: "HS256"
+      algorithm: "HS256",
     });
-    
+
     const { password: pw, createdAt, updatedAt, ...userData } = foundUser;
     res.json({
       success: true,
@@ -68,17 +74,33 @@ export const login = async (req, res, next) => {
 
 export const profileUser = async (req, res, next) => {
   try {
-    const userId = req.user.id //from authMiddleWare
-    const user = await getMe("id", userId)
-    if(!user){
-      return res.status(404).json({message: "User not found"})
+    const rawUserId = req.user?.id || req.user?.userId;
+
+    if (!rawUserId) {
+      return res.status(401).json({ message: "Invalid token" });
     }
-    const { password, createAt, updatedAt, ...userData } = user
-    res.json({ 
+
+    const userId = Number(rawUserId);
+
+    if (Number.isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user id" });
+    }
+
+    const user = await getMe(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { password, createAt, updatedAt, ...userData } = user;
+
+    res.json({
       success: true,
-      user: {...userData}  
+      user: userData,
     });
   } catch (error) {
     next(error);
   }
 };
+
+
